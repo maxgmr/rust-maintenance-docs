@@ -1,6 +1,6 @@
 # Updating `rustc` in Ubuntu
 
-This is an informal guide detailing the process of maintaining the Rust toolchain in Ubuntu.
+This is a very informal guide detailing the process of maintaining the Rust toolchain in Ubuntu.
 
 ## Background
 
@@ -8,7 +8,7 @@ We publish the `rustc` source package, which provides binary packages for the Ru
 
 These packages are maintained largely in order to support building other Rust packages in the Ubuntu archive. Rust developers seeking to work on their own Rust programs typically use the [`rustup` snap](https://snapcraft.io/rustup) instead.
 
-Unlike most packages, we maintain `rustc` largely separately from Debian. Sometimes changes are merged, but by and large we maintain our Rust toolchain independently.
+Unlike most packages, we maintain `rustc` separately from Debian. Sometimes changes are merged, but by and large we maintain our Rust toolchain independently.
 
 ## High-Level Summary of the Update Process
 
@@ -20,7 +20,7 @@ A typical `rustc` update goes through the following steps:
 4. The upstream Rust source is re-downloaded with the new list of files to yank out, overwriting the source code once again, but with the unnecessary files removed.
 5. Any issues causing the new Rust package build to fail are fixed.
 
-Usually, the process is _largely_ formulaic and straightforward until step 5- that's when things can _really_ vary.
+Usually, the process is _largely_ formulaic and straightforward until step 5- that's when you'll need to address any issues causing the build to fail.
 
 ## Reference
 
@@ -346,7 +346,7 @@ We can also update our `debian/changelog` version number too, to something like 
 
 In order to keep our Git tree clean, we're actually going to rebase all our changes _on top_ of the new upstream Rust source.
 
-Fair warning: I'm no Git expert. There is _almost certainly_ a better way to do this, but it works for me!
+Fair warning: I'm no Git expert. There is _almost certainly_ a better way to do this!
 
 We're going to use our personal Launchpad remote as a "backup" in case things go pear-shaped:
 
@@ -485,7 +485,7 @@ The command should return a URL leading to the PPA. Open up that URL to visit th
 
 Next, add a changelog entry, including the `~ppa` component in your version number so the PPA version isn't used in favour of the actual version in the archive:
 
-- `<N>` is just the number of the upload. You may have to re-upload to this PPA, so you can just start with `~ppa1`, for your first PPA upload, then `~ppa2` for your second, etc...
+- `<N>` is just the number of the upload. You may have to re-upload to this PPA, so you can just start with `~ppa1` for your first PPA upload, then `~ppa2` for your second, etc...
 
 ```shell
 dch -bv <X.Y.Z>+dfsg0ubuntu1\~ppa<N>-0ubuntu1 --distribution "<release>" "PPA upload"
