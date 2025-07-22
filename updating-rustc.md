@@ -709,3 +709,7 @@ To see an example, here's [my 1.85 comment containing everything except the pass
 #### The i386 whitelist
 
 Finally, we just need to ask an Archive Admin to add the new `rustc` package to the i386 whitelist so it can be added to the new package queue. Subscribe `ubuntu-archive` to the bug and add a comment requesting addition to the i386 whitelist.
+
+#### Requesting review
+
+You're now ready to get a review! Subscribe `ubuntu-sponsors` to your bug to make it visible for review and upload.
