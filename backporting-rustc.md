@@ -51,3 +51,22 @@ Now we know _what_ we have to do, AND the _order_ to do it in. To backport `rust
    3. Backport `rustc-1.86` from Noble to Jammy
 
 As you can see, something that seemed simple at first turns out to actually be a lot of work. (What else is new?) On the bright side, by doing things this way, you'll discover that the most common problems are the same, over and over again, and you'll eventually already know how to fix them in advance.
+
+## Reference
+
+From now on, `<X.Y>` and `<X.Y.Z>` refer to the Rust version number you're backporting.
+
+`<X.Y_old>` and `<X.Y.Z_old>` refer to the Rust version number before the version you're backporting.
+
+`<release>` refers to the Ubuntu release you're backporting _to_, while `<source_release>` refers to the Ubuntu release you're backporting _from_.
+
+For example, if you're backporting `rustc-1.82` to Jammy...
+
+- `<X.Y>` = 1.82
+- `<X.Y.Z>` = 1.82.0
+- `<X.Y_old>` = 1.81
+- `<X.Y.Z_old>` = 1.81.0
+- `<release>` = Jammy
+- `<source_release>` = Noble
+
+`<lpuser>` refers to your Launchpad username.
