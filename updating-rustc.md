@@ -42,6 +42,8 @@ Unless stated otherwise, all file paths are relative to the Git repository direc
 
 When describing file paths, the `debian/` directory is sometimes shortened to `d/` for brevity. (Same with `debian/patches` being shortened to `d/p`.)
 
+`<release>` refers to the target Ubuntu release adjective, e.g. `noble` for Noble Numbat.
+
 ## Setting up the Repository Locally
 
 Personally, since the Debian build tools generate a bunch of files in the parent directory of your package source directory, I like to keep things two directories deep, i.e., clone the repo inside an existing `rustc` directory so the structure looks like `rustc/rustc/<debian dir and source files>`. This means that all your orig tarballs, `.changes` files, etc. will be inside the upper-level `rustc` folder.
@@ -60,7 +62,17 @@ git remote add <lpuser> git+ssh://<lpuser>@git.launchpad.net/~<lpuser>/+git/rust
 
 ## The Update
 
-### 1. Setting up
+### 1. Creating a Bug Report
+
+In order to publicly track the progress and status of the update, you must create a bug report on Launchpad.
+
+If this Rust version is the target version for the upcoming Ubuntu release, then you can create a bug under [`rust-defaults`](https://pad.lv/u/rust-defaults). This is because you will eventually need to update `rust-defaults` to point to this new Rust version. You can find a real-life bug report of mine for `rustc-1.85` [here](https://pad.lv/2109761).
+
+If this Rust version is _not_ the target version for the upcoming Ubuntu release, then the process is more similar to adding a [new package](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages) to the archive in general. You can create an Ubuntu bug tagged with `needs-packaging`. A real-life bug report for `rustc-1.86` is [here](https://pad.lv/2117513).
+
+Make sure to add a tag for your target Ubuntu release to your bug report, e.g. `noble` if Noble Numbat is the current devel release. You should also set the bug Milestone to the version number of the release, e.g. `ubuntu-24.04` for Noble Numbat.
+
+### 2. Setting up
 
 Make sure you're on the previous version's branch:
 
@@ -76,7 +88,7 @@ git checkout -b merge-<X.Y>
 git push <lpuser> merge-<X.Y>
 ```
 
-### 2. Getting the New Upstream Rust Source
+### 3. Getting the New Upstream Rust Source
 
 In this step, we need to get the source code of the new Rust version. Luckily, `debian/watch` automates this process for us.
 
@@ -108,6 +120,14 @@ dch -v <X.Y.Z>+dfsg0ubuntu0-0ubuntu0
 ```
 
 Don't forget to manually change the versioned package name in the changelog too! (i.e., `rustc-<X.Y_old>` -> `rustc-<X.Y>`)
+
+You can also create your first changelog bullet point- the "New upstream version" point. It should look something like the following; consult previous changelog entries for examples:
+
+```
+* New upstream version <X.Y.Z> (LP: #<lp_bug_number>)
+```
+
+Make sure `<lp_bug_number>` matches the bug number you created earlier!
 
 #### Getting the new source and orig tarball with `uscan`
 
@@ -152,7 +172,7 @@ gbp import-orig \
 
 You should now see two commits in your Git log stating that your upstream source has been updated. Great job!
 
-### 3. Initial Patch Refresh
+### 4. Initial Patch Refresh
 
 Now that the actual upstream source code of your repo has changed, many of the different patches in `debian/patches` won't apply cleanly. It's your job to fix them.
 
@@ -168,7 +188,7 @@ To check your work, you can always run a `git diff` on the patch you just refres
 
 - The situations in which you have to modify the _actual changes_ made by the patch are relatively limited. Be extra-cautious in these cases.
 
-### 4. Pruning Vendored Crates
+### 5. Pruning Vendored Crates
 
 As stated above, we don't want to include unnecessary vendored dependencies, especially Windows-related crates like `windows-sys`. This pruning ensures adherence to free software principles, reduces the attack surface of the binary packages, and reduces the binary package size on the end user's hard drive.
 
@@ -261,7 +281,7 @@ You'll notice that these two crates aren't included in the exclusion list- they 
 
 That said, previous `rustc` packages _have_ been released without either, and I've been able to get builds without `windows-metadata`, so it may be possible to exclude them fully in the future. More research is needed on this topic!
 
-### 5. Pruning Unused Dependencies
+### 6. Pruning Unused Dependencies
 
 Once you've removed all `Cargo.toml` lines which pull in unnecessary vendored dependencies, you're ready to actually update your Debian files to exclude said unnecessary dependencies from the `vendor/` directory entirely!
 
@@ -326,7 +346,7 @@ You shouldn't see anything _too surprising_. Anything removed from the diff mean
 
 Once you've checked over your new list of excluded vendored crates, you can commit your `d/copyright` changes and continue.
 
-### 6. Updating Your Source Tree (Again)
+### 7. Updating Your Source Tree (Again)
 
 #### The return of `uscan`
 
@@ -401,7 +421,7 @@ Once you're 100% sure everything is good, force push to your remote "backup":
 git push -f <remote> merge-<X.Y>
 ```
 
-### 7. Refreshing the Patches (Again)
+### 8. Refreshing the Patches (Again)
 
 You just yanked out a ton of files, so some of the package patches will no longer apply. You must refresh all the patches so they apply cleanly onto the newly-pruned source.
 
@@ -409,7 +429,7 @@ You just yanked out a ton of files, so some of the package patches will no longe
 
 Hopefully, this shouldn't take too long. There will, of course, be a ton of lines removed from `d/p/prune/d-0021-vendor-remove-windows-dependencies.patch` because a bunch of the vendored crates you pruned were _themselves_ unnecessary.
 
-### 8. Updating `XS-Vendored-Sources-Rust`
+### 9. Updating `XS-Vendored-Sources-Rust`
 
 Inside of `d/control`, and `d/control.in`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies along with their versions on one _huge_ line.
 
@@ -424,7 +444,7 @@ Copy-paste the expected value it provides to both `debian/control` AND `debian/c
 
 - Make sure there's still an empty line after the end of the field! One time I accidentally deleted the empty line and trying to find the source of the build failure was a huge pain.
 
-### 9. Updating `d/copyright`
+### 10. Updating `d/copyright`
 
 All the new `vendor/` files must be added to `d/copyright`. Luckily, we can use a script which uses Lintian to generate all the missing copyright stanzas:
 
@@ -443,7 +463,7 @@ I've also created two helper scripts which make it easier to keep `d/copyright` 
 
 - Note that both scripts are intentionally overzealous in order to catch everything- don't delete anything without manually verifying it first!
 
-### 10. Local Build
+### 11. Local Build
 
 You're now ready to try building your updated `rustc`! I use `sbuild` to do this.
 
@@ -467,7 +487,7 @@ Now you're ready to go!
 sbuild -Ad <release> -c <schroot> .
 ```
 
-### 11. PPA Build
+### 12. PPA Build
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
 
@@ -512,3 +532,180 @@ Finally, upload the newly-created source package:
 ```shell
 dput ppa:<lpname>/rustc-<X.Y>-merge $(source-changes-file)
 ```
+
+### 13. Final Lintian Checks
+
+Once everything builds in a PPA for all architectures, pat yourself on the back! The hardest part is over, and you're nearly done!
+
+You now need to make sure that your package follows Debian policy. Clean up previous build artifacts, then build the source package once more:
+
+```shell
+dpkg-buildpackage -S -I -i -nc -d -sa
+```
+
+Now you can run Lintian with all the pedantic, experimental, etc. lints enabled. Most of the extra ones are just informational, but it's a good idea to check everything and see if there are some obvious ways to make the package just a little bit cleaner.
+
+```shell
+lintian -i -I -E --pedantic
+```
+
+Next, check the Lintian output with just the warnings and errors.
+
+```shell
+lintian -i --tag-display-limit 0 2>&1 | tee <path/to/log/file>
+```
+
+You _do_ need to address all of these. They must either be fixed or added to `debian/source/lintian-overrides{,.in}`, with a few notable exceptions:
+
+- `E: rustc-1.86 source: field-too-long Vendored-Sources-Rust`
+  - This is simply the length of the field. While we _would_ like to change this in the future in `dh-cargo`, there's nothing that can (or should) be done about this for now.
+- `E: rustc-1.86 source: unknown-file-in-debian-source [debian/source/lintian-overrides.in]`
+  - This is just the file used to generate the Lintian overrides for a given Rust version. It's completely harmless to have in the source tree.
+- `E: rustc-1.86 source: version-substvar-for-external-package Depends ${binary:Version} cargo-<X.Y> -> rustc [debian/control:*]`
+  - This is just a fallback for a non-versioned `rustc` package. While it's unlikely to ever be used, it's not a typo, so you don't need to worry about it.
+- `W: rustc-1.86 source: unknown-field Vendored-Sources-Rust`
+  - This is a custom field, not a typo.
+
+Once you've dealt with all other warnings and errors, you're ready for the next step!
+
+### 14. autopkgtests
+
+Useful resrouces:
+
+- [Ubuntu Maintainers' Handbook - Running Package Tests](https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageTests.md)
+- [Ubuntu Wiki - autopkgtests](https://wiki.ubuntu.com/ProposedMigration#autopkgtests)
+
+In order to ensure the package performs as intended, we run autopkgtests. autopkgtests are intended to test the binary package's performance. The Rust package has two autopkgtests:
+
+1. Use the installed `rustc` package to compile the Rust compiler
+2. Create a simple "Hello world" crate, build it, and run it
+
+As you can imagine, the first autopkgtest takes considerably more time and resources. _So_ much, in fact, that you'll likely need to request more resources for the test runner.
+
+#### Locally running the autopkgtests in the default test bed
+
+Once you've built `rustc` in your PPA, you're ready to run the autopkgtests locally. First, create a test bed in an easily-accessible place:
+
+```shell
+autopkgtest-buildvm-ubuntu-cloud -v -r <release>
+```
+
+You'll need to create a differently-named test bed later, so I like to rename the default one:
+
+```shell
+mv autopkgtest-<release>-<arch>.img autopkgtest-<release>-<arch>-default.img
+```
+
+Now, run the autopkgtests. We're going to be simulating the [default Openstack flavour](https://wiki.ubuntu.com/ProposedMigration#autopkgtests) of 4096MiB RAM, 2 CPU cores, and 20G disk size:
+
+- The `--log-file` option is picky. It doesn't do bash path expansions and the log file needs to exist already.
+
+```shell
+autopkgtest rustc-<X.Y> \
+    --apt-upgrade \
+    --shell-fail \
+    --add-apt-source=ppa:<lpuser>/rustc-<X.Y>-merge \
+    --log-file=<path/to/log/file> \
+    -- \
+    qemu \
+    --ram-size=4096 \
+    --cpus=2 \
+    <path/to/test/bed/autopkgtest-<series>-<arch>-default.img
+```
+
+If all the autopkgtests pass, great! You're ready to [run the autopkgtests for real](<updating-rustc#Running the PPA autopkgtests>). However, in all likelihood, an autopkgtest fails, so you need to read on...
+
+#### Locally running autopkgtests with more resources
+
+If the autopkgtests failed, you likely saw something like the following near the end of the build log:
+
+```
+Did not run successfully: signal: 9 (SIGKILL)
+rustc exited with signal: 9 (SIGKILL)
+```
+
+If you see this, don't panic- this is normal. The test bed has run out of RAM and killed the process. It takes a lot of resources to compile `rustc`.
+
+All we need to do is make sure that the autopkgtests compile on the "large" Openstack test bed flavour, which has 8192MiB of RAM, 4 CPU cores, and 100G disk size.
+
+We'll now create a second test bed which matches these conditions, and rename it accordingly:
+
+```shell
+autopkgtest-buildvm-ubuntu-cloud -s 100G --ram-size=8192 --cpus=4 -v -r <release>
+mv autopkgtest-<release>-<arch>.img autopkgtest-<release>-<arch>-big.img
+```
+
+Now, try running the autopkgtests again on your new, bigger test bed:
+
+```shell
+autopkgtest rustc-<X.Y> \
+    --apt-upgrade \
+    --shell-fail \
+    --add-apt-source=ppa:<lpuser>/rustc-<X.Y>-merge \
+    --log-file=<path/to/log/file> \
+    -- \
+    qemu \
+    --ram-size=8192 \
+    --cpus=4 \
+    <path/to/test/bed/autopkgtest-<series>-<arch>-big.img
+```
+
+If _these_ autopkgtests pass, we've identified the problem! The autopkgtests simply don't have enough resources.
+
+#### Getting more resources for the autopkgtests
+
+We need to make sure that when the autopkgtests are run for real, they're run on the larger test bed profile.
+
+To do this, create a merge proposal in the [`autopkgtest-package-configs` repo](https://code.launchpad.net/~ubuntu-release/autopkgtest-cloud/+git/autopkgtest-package-configs) adding the new Rust version to the list of `big_packages`, which are granted the 100GB disk space, 8192MiB of memory, and 4 vCPUs we used earlier.
+
+The change itself is trivial:
+
+```diff
+--- a/big_packages
++++ b/big_packages
+@@ -174,6 +174,7 @@ rsass
+ ruby-minitest
+ ruby-parallel
+ rustc
++rustc-<X.Y>
+ rust-ahash
+ rust-axum/ppc64el
+ rust-cargo-c/ppc64el
+```
+
+For an example on how to format this merge proposal, you can see one of my real-life proposals [here](https://code.launchpad.net/~maxgmr/autopkgtest-cloud/+git/autopkgtest-package-configs/+merge/487781).
+
+#### Running the PPA autopkgtests
+
+To run the autopkgtests for real, run the following command to get links to all the autopkgtests:
+
+```shell
+ppa tests \
+    --show-url ppa:<lpuser>/rustc-<X.Y>-merge \
+    --release <release>
+```
+
+Click all of the links to trigger the autopkgtests for each target architecture. The infrastructure can be a little flaky at times, so if some of them fail, don't be afraid to retry.
+
+You can use the same `ppa tests ...` command to check the status of the autopkgtests themselves.
+
+### 15. Uploading the Package
+
+You're nearly ready to request sponsorship. First, it's your duty to make your sponsor's job _as easy as possible_.
+
+#### Sharing the right info
+
+Go to the bug report you originally opened and create a comment with the following information:
+
+- A link to your successfully-built PPA packages
+- A link to the source code in the Foundations repository (don't forget to `git push <foundations> merge-<X.Y>`)
+- A link to the commit history in the Foundations repository
+- A list of any notable packaging changes
+- The output of `lintian` (without any args)
+- Links to all the passing autopkgtests
+
+To see an example, here's [my 1.85 comment containing everything except the passing autopkgtest links](https://bugs.launchpad.net/ubuntu/+source/rust-defaults/+bug/2109761/comments/1). I added the passing autopkgtest links [here](https://bugs.launchpad.net/ubuntu/+source/rust-defaults/+bug/2109761/comments/3).
+
+#### The i386 whitelist
+
+Finally, we just need to ask an Archive Admin to add the new `rustc` package to the i386 whitelist so it can be added to the new package queue. Subscribe `ubuntu-archive` to the bug and add a comment requesting addition to the i386 whitelist.
