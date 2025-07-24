@@ -984,3 +984,28 @@ I've created a patch that disables `zmmul`, which is intended to be overlaid on 
 ```shell
 git cherry-pick 9b5dda44b0de0a3e1e9dfd552e6097c08aed298f
 ```
+
+### No Space Left on Device
+
+One annoying issue that can happen is the build will succeed on one's own machine, but fail in a PPA due to the PPA builder running out of space.
+
+To solve this, consult the build logs and find the spot in `d/rules` right before the PPA builder runs out of space. Then, you can add some things...
+
+First, just to be confident you're deleting the right stuff, you can add some helpful diagnostics. I've found the following diagnostics to be especially helpful:
+
+```makefile
+	@echo "------- disk usage -------"
+	-df -h /
+	@echo "------- inode usage -------"
+	-df -ih /
+	@echo "------- top space hogs in cwd -------"
+	-du -xh $(CURDIR) | sort -h | tail -n 20
+```
+
+In my case, the PPA builder ran out of space _past_ the point at which `stage0`, `stage1`, and `test` artifacts were no longer needed, so I simply deleted them earlier than usual:
+
+```makefile
+	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/test
+	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/stage0-rustc
+	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/stage1-rustc
+```
