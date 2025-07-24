@@ -74,7 +74,7 @@ For example, if you're backporting `rustc-1.82` to Jammy...
 
 `<lpuser>` refers to your Launchpad username.
 
-`<N>` is the suffix for `~bpo` in the [changelog version number](<backporting-rustc#3. Changelog Version>) and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
+`<N>` is the suffix for `~bpo` in the [changelog version number](#3-changelog-version) and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
 
 `<lp_bug>` refers to the bug number on Launchpad.
 
@@ -84,7 +84,7 @@ To set up a local repository, consult the [equivalent section](https://github.co
 
 ## The Backport Process
 
-The baseline backport process is essentially trivial on its own and has few distinguishing features from a regular Rust toolchain update. The _real_ meat of these docs is the [Common Backporting Changes](<backporting-rustc#Common Backporting Changes>) section, which details things you'll often have to do in order to get the backport to build properly.
+The baseline backport process is essentially trivial on its own and has few distinguishing features from a regular Rust toolchain update. The _real_ meat of these docs is the [Common Backporting Changes](#common-backporting-changes) section, which details things you'll often have to do in order to get the backport to build properly.
 
 ### 1. The Bug Report
 
@@ -94,7 +94,7 @@ It's quite likely that there's a specific _reason_ why the backport was needed (
 
 If no bug exists, you'll need to create your own. You can find a good example [here](https://pad.lv/2100492). If you need to go back multple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
 
-- Going back to our [Jammy 1.86 example](<backporting-rustc#Example: Backporting `rustc-1.86` to Jammy>), we'd have to create three bug reports:
+- Going back to our [Jammy 1.86 example](#example-backporting-rustc-186-to-jammy), we'd have to create three bug reports:
   1. `rustc-1.84` bug targeting Noble and Jammy
   2. `rustc-1.85` bug targeting Noble and Jammy
   3. `rustc-1.86` bug targeting Plucky, Noble, and Jammy
@@ -192,7 +192,7 @@ In _theory_, you may possibly be done at this step- you never know! In practice,
 
 Consult the ["Local Build" section](https://github.com/maxgmr/rust-maintenance-docs/blob/main/updating-rustc.md#11-local-build) of the Rust toolchain update docs for info on how to test build locally using `sbuild`.
 
-While something will almost _certainly_ break, most of these breakages are well-known. Consult the [Common Backporting Changes](<backporting-rustc#Common Backporting Changes>) section for assistance.
+While something will almost _certainly_ break, most of these breakages are well-known. Consult the [Common Backporting Changes](#common-backporting-changes) section for assistance.
 
 #### Using another PPA to bootstrap
 
@@ -518,9 +518,9 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-Update the [changelog version number accordingly](<backporting-rustc#3. Changelog Version>). Your version number should now contain either `~bpo0` or `~bpo2`, depending on the status of `libgit2`.
+Update the [changelog version number accordingly](#3-changelog-version). Your version number should now contain either `~bpo0` or `~bpo2`, depending on the status of `libgit2`.
 
-You can now [re-generate the orig tarball](<backporting-rustc#4. Generating the Orig Tarball>), which should now include the upstream LLVM source in `src/llvm-project`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
+You can now [re-generate the orig tarball](#4-generating-the-orig-tarball), which should now include the upstream LLVM source in `src/llvm-project`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
 
 After regenerating the orig tarball, grab all the new LLVM stuff and overlay it on your working directory:
 
@@ -542,8 +542,8 @@ Annoyingly, some empty directories won't be included in the Git commit- [this is
 
 A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what `rustc` requires. If your Ubuntu release's [available `libgit2` version](https://pad.lv/u/libgit2) doesn't meet your `debian/control` requirements, then you have two options:
 
-1. [Downgrade](<backporting-rustc#Downgrading `libgit2-dev`>). This is the easier option, assuming the `libgit2` version in the archive isn't _too_ old.
-2. [Vendor](<backporting-rustc#Vendoring `libgit2`>). This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
+1. [Downgrade](#downgrading-libgit2-dev). This is the easier option, assuming the `libgit2` version in the archive isn't _too_ old.
+2. [Vendor](#vendoring-libgit2). This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
 
 ### Downgrading `libgit2-dev`
 
@@ -619,7 +619,7 @@ Adjust the versions it searches for in `try_system_libgit2()` accordingly:
 
 #### Testing
 
-Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult ["Vendoring `libgit2-dev`"](<backporting-rustc#Vendoring `libgit2`>) below.
+Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult ["Vendoring `libgit2-dev`"](#vendoring-libgit2) below.
 
 ### Vendoring `libgit2`
 
@@ -724,9 +724,9 @@ When you refresh the patch and pop everything off again, the patch diff should l
 
 #### Re-including the `libgit2` source
 
-Update the [changelog version number accordingly](<backporting-rustc#3. Changelog Version>). Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
+Update the [changelog version number accordingly](#3-changelog-version). Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
 
-You can now [re-generate the orig tarball](<backporting-rustc#4. Generating the Orig Tarball>), which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
+You can now [re-generate the orig tarball](#4-generating-the-orig-tarball), which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
 
 After regenerating the orig tarball, grab all the new `libgit2` stuff and overlay it on your working directory:
 
@@ -959,7 +959,7 @@ Listen to the error message. Add `libssl-dev` to `Build-Depends` within `d/contr
 
 ### RISC-V "Z" Extension Issues
 
-Certain tests fail may fail on RISC-V because older versions of `binutils` don't know how to handle newer RISC-V extensions included with the [now-vendored LLVM](<backporting-rustc#Vendoring LLVM>).
+Certain tests fail may fail on RISC-V because older versions of `binutils` don't know how to handle newer RISC-V extensions included with the [now-vendored LLVM](#vendoring-llvm).
 
 #### Disabling `zicsr` (LLVM 18+)
 
