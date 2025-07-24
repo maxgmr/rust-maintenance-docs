@@ -743,3 +743,57 @@ git add vendor/libgit2-sys-<version>/libgit2
 ```
 
 Annoyingly, some empty directories won't be included in the Git commit- [this is a problem shared by packages in general](https://pad.lv/1917877). Unfortunately, this means that you'll have to re-extract and overlay every time you clone the Git repo to a new place, run `git clean`, switch to a non-`libgit2`-vendored branch, etc.
+
+### Disabling `dh-cargo`
+
+Earlier Ubuntu releases may not have access to `dh-cargo` for the purposes of validating `XS-Vendored-Sources-Rust`. If this is the case, it must be removed from the build dependencies and build scripts.
+
+#### Removing `dh-cargo` from `Build-Depends`
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -12,7 +12,7 @@ Rules-Requires-Root: no
+ Build-Depends:
+  debhelper (>= 9),
+  debhelper-compat (= 13),
+- dh-cargo (>= 28ubuntu1~),
++# dh-cargo (>= 28ubuntu1~),
+  dpkg-dev (>= 1.17.14),
+  python3:native,
+  cargo-1.85 | cargo-1.86 <!pkg.rustc.dlstage0>,
+```
+
+Don't forget `d/control.in` too!
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -12,7 +12,7 @@ Rules-Requires-Root: no
+ Build-Depends:
+  debhelper (>= 9),
+  debhelper-compat (= 13),
+- dh-cargo (>= 28ubuntu1~),
++# dh-cargo (>= 28ubuntu1~),
+  dpkg-dev (>= 1.17.14),
+  python3:native,
+  cargo-@RUST_PREV_VERSION@ | cargo-@RUST_VERSION@ <!pkg.rustc.dlstage0>,
+```
+
+#### Removing the `Vendored-Sources-Rust` check
+
+`d/rules` must be modified so it doesn't try to use `dh-cargo` to validate `Vendored-Sources-Rust`:
+
+```diff
+--- a/debian/rules
++++ b/debian/rules
+@@ -278,8 +278,6 @@ check-no-old-llvm:
+ .PHONY: check-no-old-llvm
+
+ debian/dh_auto_configure.stamp: debian/config.toml check-no-old-llvm
+-       # fail the build if the vendored sources info is out-of-date
+-       CARGO_VENDOR_DIR=$(CURDIR)/vendor /usr/share/cargo/bin/dh-cargo-vendored-sources
+        # fail the build if we accidentally vendored openssl, indicates we pulled in unnecessary dependencies
+        test ! -e vendor/openssl-src-*
+        # fail the build if our version contains ~exp and we are not releasing to experimental
+```
