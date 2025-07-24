@@ -917,4 +917,42 @@ This is a [known issue](https://github.com/rust-lang/cargo/issues/14407) with `j
 
 If this happens, try building in a PPA and seeing if you still get that error. There's a good chance our actual build infrastructure doesn't trigger those warnings and passes the tests.
 
-I know that "It works in a PPA for some reason" is an unsatisfying answer, but I haven't had time yet to really delve deeper into this issue and figure out the cause/solution, Sometimes you just have to accept the victories you're given.
+I know that "It works in a PPA for some reason" is an unsatisfying answer, but I haven't had time yet to really delve deeper into this issue and figure out the cause/solution. Sometimes you just have to accept the victories you're given.
+
+### Missing OpenSSL
+
+If you get a message similar to this one:
+
+```
+  The system library `openssl` required by crate `openssl-sys` was not found.
+  The file `openssl.pc` needs to be installed and the PKG_CONFIG_PATH environment variable must contain its parent directory.
+  The PKG_CONFIG_PATH environment variable is not set.
+
+  HINT: if you have installed the library, try setting PKG_CONFIG_PATH to the directory containing `openssl.pc`.
+
+
+  --- stderr
+  thread 'main' panicked at /<<PKGBUILDDIR>>/vendor/openssl-sys-0.9.102/build/find_normal.rs:190:5:
+
+
+  Could not find directory of OpenSSL installation, and this `-sys` crate cannot
+  proceed without this knowledge. If OpenSSL is installed and this crate had
+  trouble finding it,  you can set the `OPENSSL_DIR` environment variable for the
+  compilation process.
+
+  Make sure you also have the development packages of openssl installed.
+  For example, `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
+```
+
+Listen to the error message. Add `libssl-dev` to `Build-Depends` within `d/control` and `d/control.in`:
+
+```diff
+@@ -29,6 +29,7 @@ Build-Depends:
+  libcurl4-gnutls-dev | libcurl4-openssl-dev,
+  libssh2-1-dev,
+  libsqlite3-dev,
++ libssl-dev,
+ # Required for llvm build
+  autotools-dev,
+  m4,
+```
