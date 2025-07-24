@@ -908,3 +908,13 @@ You can cherry-pick the following commit and deal with the merge conflicts if yo
 ```shell
 git cherry-pick 20ce525927c2e9176dd3c7209968038b09a49a25
 ```
+
+### Failing `rustdoc-ui` Tests
+
+For older Ubuntu releases (likely those with `make < 4.4`), it's possible for emitted `jobserver` warnings to cause `rustdoc-ui` tests which use byte-for-byte `stderr` comparisons to fail.
+
+This is a [known issue](https://github.com/rust-lang/cargo/issues/14407) with `jobserver-rs`- it's even noted in the [`rustc` book](https://doc.rust-lang.org/stable/rustc/jobserver.html#gnu-make).
+
+If this happens, try building in a PPA and seeing if you still get that error. There's a good chance our actual build infrastructure doesn't trigger those warnings and passes the tests.
+
+I know that "It works in a PPA for some reason" is an unsatisfying answer, but I haven't had time yet to really delve deeper into this issue and figure out the cause/solution, Sometimes you just have to accept the victories you're given.
