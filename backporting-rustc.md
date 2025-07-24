@@ -850,3 +850,39 @@ Don't forget to edit `d/control.in` as well!
  ifneq (,$(LLVM_DESTDIR))
  LLVM_LIBRARY_PATH := $(LLVM_DESTDIR)/usr/lib/$(DEB_HOST_MULTIARCH):$(LLVM_DESTDIR)/usr/lib
 ```
+
+### Outdated `cmake`
+
+If the version of [`cmake`](https://pad.lv/u/cmake) in the archive is too old, we can't just update `cmake`. This would change how countless other packages were built. Instead, we use [`cmake-mozilla`](https://pad.lv/u/cmake-mozilla), which is updated specifically for backports to use.
+
+Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `d/control` and `d/control.in`:
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -21,7 +21,7 @@ Build-Depends:
+  llvm-19-tools:native,
+  libclang-rt-19-dev (>= 1:19.1.2),
+  libclang-common-19-dev (>= 1:19.1.2),
+- cmake (>= 3.0) | cmake3,
++ cmake (>= 3.0) | cmake3 | cmake-mozilla (>= 3.0),
+ # needed by some vendor crates
+  pkgconf,
+ # this is sometimes needed by rustc_llvm
+```
+
+Don't forget `d/control.in`!
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -21,7 +21,7 @@ Build-Depends:
+  llvm-19-tools:native,
+  libclang-rt-19-dev (>= 1:19.1.2),
+  libclang-common-19-dev (>= 1:19.1.2),
+- cmake (>= 3.0) | cmake3,
++ cmake (>= 3.0) | cmake3 | cmake-mozilla (>= 3.0),
+ # needed by some vendor crates
+  pkgconf,
+ # this is sometimes needed by rustc_llvm
+```
