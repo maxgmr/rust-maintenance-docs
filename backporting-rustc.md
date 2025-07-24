@@ -194,6 +194,18 @@ Consult the ["Local Build" section](https://github.com/maxgmr/rust-maintenance-d
 
 While something will almost _certainly_ break, most of these breakages are well-known. Consult the [Common Backporting Changes](<backporting-rustc#Common Backporting Changes>) section for assistance.
 
+#### Using another PPA to bootstrap
+
+Not all `rustc` backports necessarily end up on the archive. Sometimes they're just needed to bootstrap another backport.
+
+If this is your situation, you must add your PPA as an extra repository to your `sbuild` command:
+
+```shell
+sbuild . \
+    -Ad <release> \
+    --extra-repository="deb [trusted=yes] http://ppa.launchpadcontent.net/<lpuser>/rustc-<X.Y_old>-<release>/ubuntu/ <release> main"
+```
+
 ### 6. Building in a PPA
 
 Once your backport builds locally, you're ready for a PPA upload!
