@@ -797,3 +797,56 @@ Don't forget `d/control.in` too!
         test ! -e vendor/openssl-src-*
         # fail the build if our version contains ~exp and we are not releasing to experimental
 ```
+
+### Reverting to `pkg-config`
+
+`pkgconf` is a drop-in modern replacement for the older `pkg-config`, but if you get an error stating that `the pkg-config command could not be found`, then your target Ubuntu release is likely too old to have `pkgconf`.
+
+#### Editing `Build-Depends`
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -23,7 +23,7 @@ Build-Depends:
+  libclang-common-19-dev (>= 1:19.1.2),
+  cmake (>= 3.0) | cmake3,
+ # needed by some vendor crates
+- pkgconf,
++ pkg-config,
+ # this is sometimes needed by rustc_llvm
+  zlib1g-dev:native,
+  zlib1g-dev,
+```
+
+Don't forget to edit `d/control.in` as well!
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -23,7 +23,7 @@ Build-Depends:
+  libclang-common-19-dev (>= 1:19.1.2),
+  cmake (>= 3.0) | cmake3,
+ # needed by some vendor crates
+- pkgconf,
++ pkg-config,
+ # this is sometimes needed by rustc_llvm
+  zlib1g-dev:native,
+  zlib1g-dev,
+```
+
+#### Editing `d/rules`
+
+`d/rules` must be modified so Cargo uses `pkg-config` instead of `pkgconf`:
+
+```diff
+--- a/debian/rules
++++ b/debian/rules
+@@ -59,6 +59,7 @@ export LLVM_PROFILER_RT_LIB := /usr/lib/clang/$(LLVM_VERSION)/lib/linux/libclang
+ endif
+ # Cargo-specific flags
+ export LIBSSH2_SYS_USE_PKG_CONFIG=1
++export PKG_CONFIG=pkg-config
+ # Make it easier to test against a custom LLVM
+ ifneq (,$(LLVM_DESTDIR))
+ LLVM_LIBRARY_PATH := $(LLVM_DESTDIR)/usr/lib/$(DEB_HOST_MULTIARCH):$(LLVM_DESTDIR)/usr/lib
+```
