@@ -510,7 +510,7 @@ Update the [changelog version number accordingly](<backporting-rustc#3. Changelo
 
 You can now [re-generate the orig tarball](<backporting-rustc#4. Generating the Orig Tarball>), which should now include the upstream LLVM source in `src/llvm-project`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
 
-Grab all the new LLVM stuff and overlay it on your working directory:
+After regenerating the orig tarball, grab all the new LLVM stuff and overlay it on your working directory:
 
 ```shell
 cd ..
@@ -525,3 +525,209 @@ git add src/llvm-project
 ```
 
 Annoyingly, some empty directories won't be included in the Git commit- [this is a problem shared by packages in general](https://pad.lv/1917877). Unfortunately, this means that you'll have to re-extract and overlay every time you clone the Git repo to a new place, run `git clean`, switch to a non-LLVM-vendored branch, etc.
+
+### Outdated `libgit2-dev`
+
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what `rustc` requires. If your Ubuntu release's [available `libgit2` version](https://pad.lv/u/libgit2) doesn't meet your `debian/control` requirements, then you have two options:
+
+1. [Downgrade](<backporting-rustc#Downgrading `libgit2-dev`>). This is the easier option, assuming the `libgit2` version in the archive isn't _too_ old.
+2. [Vendor](<backporting-rustc#Vendoring `libgit2`>). This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
+
+### Downgrading `libgit2-dev`
+
+It may be possible to simply downgrade the required `libgit2-dev` version to the most recent version in your target release's archive.
+
+For example, assume that the required `libgit2-dev` version is `1.9.0`, and the most recent version in the archive is `1.7.2`.
+
+#### Modifying `debian/control` and `debian/control.in`
+
+Simply reduce the minimum requirement to the version in the archive, and restrict the maximum to anything newer:
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -33,8 +33,8 @@ Build-Depends:
+  bash-completion,
+  libcurl4-gnutls-dev | libcurl4-openssl-dev,
+  libssh2-1-dev,
+- libgit2-dev (>= 1.9.0~~),
+- libgit2-dev (<< 1.10~~),
++ libgit2-dev (>= 1.7.2~~),
++ libgit2-dev (<< 1.8~~),
+  libhttp-parser-dev,
+  libsqlite3-dev,
+ # test dependencies:
+```
+
+Don't forget to change `d/control.in` too!
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -33,8 +33,8 @@ Build-Depends:
+  bash-completion,
+  libcurl4-gnutls-dev | libcurl4-openssl-dev,
+  libssh2-1-dev,
+- libgit2-dev (>= 1.9.0~~),
+- libgit2-dev (<< 1.10~~),
++ libgit2-dev (>= 1.7.2~~),
++ libgit2-dev (<< 1.8~~),
+  libhttp-parser-dev,
+  libsqlite3-dev,
+ # test dependencies:
+```
+
+#### Patching `libgit2-sys`
+
+The vendored `libgit2-sys` crate tries to search for the system libgit2 C library. It's your job to point it to the right version.
+
+Create a new patch and add the `build.rs` script of your `libgit2-sys` crate:
+
+```shell
+quilt push -a
+quilt new ubuntu/ubuntu-libgit2-downgrade.patch
+quilt add vendor/libgit2-sys-<version>/build.rs
+```
+
+Adjust the versions it searches for in `try_system_libgit2()` accordingly:
+
+```diff
+--- a/vendor/libgit2-sys-<version>/build.rs
++++ b/vendor/libgit2-sys-<version>/build.rs
+@@ -7,7 +7,7 @@
+ /// Tries to use system libgit2 and emits necessary build script instructions.
+ fn try_system_libgit2() -> Result<pkg_config::Library, pkg_config::Error> {
+     let mut cfg = pkg_config::Config::new();
+-    match cfg.range_version("1.9.0".."1.10.0").probe("libgit2") {
++    match cfg.range_version("1.7.2".."1.8.0").probe("libgit2") {
+         Ok(lib) => {
+             for include in &lib.include_paths {
+                 println!("cargo:root={}", include.display());
+```
+
+#### Testing
+
+Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult ["Vendoring `libgit2-dev`"](<backporting-rustc#Vendoring `libgit2`>) below.
+
+### Vendoring `libgit2`
+
+If the version of `libgit2-dev` in your target Ubuntu release's archive is too old to function properly, you must vendor the `libgit2` C library instead, which is normally included in the vendored `libgit2-sys` crate.
+
+#### Re-including `libgit2` in `Files-Excluded`
+
+Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time you regenerate the tarball, it's included within the files:
+
+```diff
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -43,7 +43,7 @@ Files-Excluded:
+ # Embedded C libraries
+  vendor/curl-sys-*/curl
+  vendor/libdbus-sys-*/vendor
+- vendor/libgit2-sys-*/libgit2
++# vendor/libgit2-sys-*/libgit2
+  vendor/libssh2-sys-*/libssh2
+  vendor/libsqlite3-sys-*/sqlite3
+  vendor/libsqlite3-sys-*/sqlcipher
+```
+
+#### Removing `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends`
+
+You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `d/control` and `d/control.in`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -33,9 +33,9 @@ Build-Depends:
+  bash-completion,
+  libcurl4-gnutls-dev | libcurl4-openssl-dev,
+  libssh2-1-dev,
+- libgit2-dev (>= 1.9.0~~),
+- libgit2-dev (<< 1.10~~),
+- libhttp-parser-dev,
++# libgit2-dev (>= 1.9.0~~),
++# libgit2-dev (<< 1.10~~),
++# libhttp-parser-dev,
+  libsqlite3-dev,
+ # test dependencies:
+  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
+```
+
+Don't forget `debian/control.in`, too!
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -33,9 +33,9 @@ Build-Depends:
+  bash-completion,
+  libcurl4-gnutls-dev | libcurl4-openssl-dev,
+  libssh2-1-dev,
+- libgit2-dev (>= 1.9.0~~),
+- libgit2-dev (<< 1.10~~),
+- libhttp-parser-dev,
++# libgit2-dev (>= 1.9.0~~),
++# libgit2-dev (<< 1.10~~),
++# libhttp-parser-dev,
+  libsqlite3-dev,
+ # test dependencies:
+  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
+```
+
+#### Editing the patch
+
+After that, we must edit the patch removing vendored C crates so the vendored version is used properly:
+
+```shell
+quilt push prune/d-0010-cargo-remove-vendored-c-crates.patch
+```
+
+Edit `src/tools/cargo/Cargo.toml` to re-include the `vendored-libgit2` feature:
+
+```diff
+  [features]
++ vendored-libgit2 = ["libgit2-sys/vendored"]
+```
+
+When you refresh the patch and pop everything off again, the patch diff should look something like this:
+
+```diff
+--- a/debian/patches/prune/d-0010-cargo-remove-vendored-c-crates.patch
++++ b/debian/patches/prune/d-0010-cargo-remove-vendored-c-crates.patch
+@@ -22,12 +22,12 @@ Forwarded: not-needed
+  rustc-hash = "2.1.1"
+  rustc-stable-hash = "0.1.1"
+  rustfix = { version = "0.9.0", path = "crates/rustfix" }
+-@@ -268,10 +268,8 @@
++@@ -268,10 +268,9 @@
+  doc = false
+
+  [features]
+ -vendored-openssl = ["openssl/vendored"]
+--vendored-libgit2 = ["libgit2-sys/vendored"]
++ vendored-libgit2 = ["libgit2-sys/vendored"]
+ +# Debian: removed vendoring flags
+  # This is primarily used by rust-lang/rust distributing cargo the executable.
+ -all-static = ['vendored-openssl', 'curl/static-curl', 'curl/force-system-lib-on-osx', 'vendored-libgit2']
+```
+
+#### Re-including the `libgit2` source
+
+Update the [changelog version number accordingly](<backporting-rustc#3. Changelog Version>). Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
+
+You can now [re-generate the orig tarball](<backporting-rustc#4. Generating the Orig Tarball>), which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`. Don't forget to also delete any existing `.debian.tar.xz` and `.dsc` files.
+
+After regenerating the orig tarball, grab all the new `libgit2` stuff and overlay it on your working directory:
+
+```shell
+cd ..
+tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
+cp -ra rustc-<X.Y.Z>-src/vendor/libgit2-sys-<version>/libgit2 rustc/vendor/libgit2-sys-<version>/
+```
+
+Finally, you can add the vendored `libgit2` source to Git as well:
+
+```shell
+git add vendor/libgit2-sys-<version>/libgit2
+```
+
+Annoyingly, some empty directories won't be included in the Git commit- [this is a problem shared by packages in general](https://pad.lv/1917877). Unfortunately, this means that you'll have to re-extract and overlay every time you clone the Git repo to a new place, run `git clean`, switch to a non-`libgit2`-vendored branch, etc.
