@@ -886,3 +886,25 @@ Don't forget `d/control.in`!
   pkgconf,
  # this is sometimes needed by rustc_llvm
 ```
+
+### Outdated `debhelper-compat`
+
+[`debhelper-compat`](https://www.man7.org/linux/man-pages/man7/debhelper.7.html) tells `debhelper` which compatability level to use. Every once in a while, breaking changes to `debhelper` are added. In order to stop this from breaking how all existing Debian packages are built, a new `debhelper-compat` version is added.
+
+If your target Ubuntu version doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control` and `debian/control.in`, but you must adjust your packaging accordingly.
+
+For instance, reverting to version 12 from version 13 requires using an older format of substitution variables in debian install files:
+
+```diff
+--- a/debian/libstd-rust-X.Y-dev.install.in
++++ b/debian/libstd-rust-X.Y-dev.install.in
+@@ -1 +1 @@
+-usr/lib/rust-${env:RUST_VERSION}/lib/rustlib/${env:DEB_HOST_RUST_TYPE}/lib/
++usr/lib/rust-@RUST_VERSION@/lib/rustlib/@DEB_HOST_RUST_TYPE@/lib/
+```
+
+You can cherry-pick the following commit and deal with the merge conflicts if you're going from 13->12. It also works as a reference for all the changes you'll have to make:
+
+```shell
+git cherry-pick 20ce525927c2e9176dd3c7209968038b09a49a25
+```
