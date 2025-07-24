@@ -956,3 +956,31 @@ Listen to the error message. Add `libssl-dev` to `Build-Depends` within `d/contr
   autotools-dev,
   m4,
 ```
+
+### RISC-V "Z" Extension Issues
+
+Certain tests fail may fail on RISC-V because older versions of `binutils` don't know how to handle newer RISC-V extensions included with the [now-vendored LLVM](<backporting-rustc#Vendoring LLVM>).
+
+#### Disabling `zicsr` (LLVM 18+)
+
+There exists a patch which disables the `zicsr` RISC-V extension:
+
+```shell
+git cherry-pick e7285a65b8ae134c7bd506e23beef4a3f088eab5
+```
+
+This works for LLVM 18. To disable `zicsr` on LLVM 19, you must also include my patch:
+
+```shell
+git cherry-pick eea627ceb5ec7ab312a10aafaa191c602efd561a
+```
+
+#### Disabling `zmmul` (LLVM 19+)
+
+LLVM 19 also added the `zmmul` RISC-V extension, which _also_ isn't supported on older versions of `binutils`.
+
+I've created a patch that disables `zmmul`, which is intended to be overlaid on _top_ of the `zicsr` removal patch, but you should be able to get it to apply cleanly with a little work:
+
+```shell
+git cherry-pick 9b5dda44b0de0a3e1e9dfd552e6097c08aed298f
+```
