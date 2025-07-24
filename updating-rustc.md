@@ -487,6 +487,12 @@ Now you're ready to go!
 sbuild -Ad <release> -c <schroot> .
 ```
 
+#### Squashing bugs
+
+If the build fails, it's up to you to figure out why. This will require the problem-solving skills and attention to detail I know you have!
+
+When a particular bug gives me a lot of grief, I keep all my notes about it under a personal ["Bug Diaries" GitHub repo](https://github.com/maxgmr/bug_diaries/tree/main/rustc). I find it helpful to keep all the information I've collected in one accessible place, and perhaps it may help you address any similar bugs that appear in the future.
+
 ### 12. PPA Build
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
