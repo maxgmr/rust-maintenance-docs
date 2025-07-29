@@ -383,7 +383,7 @@ git branch -d experimental
 Now, we can return to the point before any of your changes were made (i.e., the point before you originally merged the updated Rust source tree onto your Git repository). MAKE SURE YOU'VE PUSHED YOUR CHANGES BEFORE DOING THIS NEXT STEP!!!!
 
 ```shell
-git reset --hard <remove>/merge-<X.Y_old>
+git reset --hard <remote>/merge-<X.Y_old>
 ```
 
 Then, we can merge our newly-pruned upstream source onto the previous Rust version's source cleanly:
