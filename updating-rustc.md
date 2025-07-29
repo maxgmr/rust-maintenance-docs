@@ -344,7 +344,7 @@ git diff merge-<X.Y_old> -- debian/copyright
 
 You shouldn't see anything _too surprising_. Anything removed from the diff means that that crate _used_ to be excluded, but isn't anymore. This often just means that the version number increased. You can usually see a crate with the same name and increased version number that's _new_ to the `Files-Excluded` list.
 
-Once you've checked over your new list of excluded vendored crates, you can commit your `d/copyright` changes and continue.
+Once you've checked over your new list of excluded vendored crates, you can commit your `d/copyright` changes, restore/clean your Git repository, and continue.
 
 ### 7. Updating Your Source Tree (Again)
 
