@@ -389,8 +389,8 @@ git reset --hard <remote>/merge-<X.Y_old>
 Then, we can merge our newly-pruned upstream source onto the previous Rust version's source cleanly:
 
 ```shell
-gbp import-orig \
 git branch experimental
+gbp import-orig \
     --no-symlink-orig \
     --no-pristine-tar \
     --upstream-branch=experimental \
