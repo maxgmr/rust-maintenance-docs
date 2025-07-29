@@ -292,7 +292,7 @@ Previous Rust maintainers have been kind enough to create a script: `debian/prun
 In order to use the script, you need the previous Rust toolchain to bootstrap. In my opinion, it's easier to just get the toolchain using the `rustup` snap:
 
 ```shell
-rustup component add <X.Y_old>
+rustup install <X.Y.Z_old>
 ```
 
 You're now ready to run the script. You just have to point it to your Rust toolchain:
