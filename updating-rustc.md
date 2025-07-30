@@ -516,6 +516,12 @@ dpkg-buildpackage -S -I -i -nc -d -sa
 lintian -i -I -E --pedantic | debian/lintian-to-copyright.sh
 ```
 
+Don't forget to leave your virtual environment!
+
+```shell
+deactivate
+```
+
 You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
 
 Do me a favour and keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
