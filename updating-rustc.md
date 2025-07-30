@@ -478,6 +478,10 @@ Copy-paste the expected value it provides to both `debian/control` AND `debian/c
 
 - Make sure there's still an empty line after the end of the field! One time I accidentally deleted the empty line and trying to find the source of the build failure was a huge pain.
 
+#### Outdated toolchain issues
+
+If you're running a pre-versioned Rust Ubuntu release, then there's a decent chance the `cargo` installation required by `dh-cargo` will be too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's just a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the Rustup snap's version will be used instead.
+
 ### 10. Updating `d/copyright`
 
 All the new `vendor/` files must be added to `d/copyright`. Luckily, we can use a script which uses Lintian to generate all the missing copyright stanzas:
