@@ -484,18 +484,41 @@ If you're running a pre-versioned Rust Ubuntu release, then there's a decent cha
 
 ### 10. Updating `d/copyright`
 
-All the new `vendor/` files must be added to `d/copyright`. Luckily, we can use a script which uses Lintian to generate all the missing copyright stanzas:
+All the new `vendor/` files must be added to `d/copyright`. Luckily, we can use a script which uses Lintian to generate all the missing copyright stanzas.
+
+This script requires `pytoml`, so we must create and enter a virtual environment:
+
+```shell
+sudo apt install python3-venv
+# Do this somewhere convenient, e.g., `~/.venvs/`
+python3 -m venv rustc-lintian-to-copyright
+source path/to/venv/rustc-lintian-to-copyright/bin/activate
+which python3
+python3 -m pip install pytoml
+```
+
+Personally, I have to manually edit `d/lintian-to-copyright.sh` in order to get it to recognize the virtual environment. This change could potentially be permanently added, but I need to check with more experienced maintainers first.
+
+```diff
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+ # Pipe the output of lintian into this.
+ sed -ne 's/.* file-without-copyright-information //p' | cut -d/ -f1-2 | sort -u | while read x; do
+-       /usr/share/cargo/scripts/guess-crate-copyright "$x"
++   python3 /home/maxgmr/rustc/rustc/debian/scripts/guess-crate-copyright "$x"
+ done
+```
+
+Build the source package, then run Lintian and pipe the output to the script:
 
 ```shell
 dpkg-buildpackage -S -I -i -nc -d -sa
 lintian -i -I -E --pedantic | debian/lintian-to-copyright.sh
 ```
 
-I'm not too good with Python, so there's probably an easier way to do this, but I just temporarily replace `d/lintian-to-copyright.sh` with [my own version](https://github.com/maxgmr/canonical-dev-helpers/blob/main/lintian-to-copyright.sh) that handles all the venv stuff for me.
-
 You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
 
-Do me a solid and keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
+Do me a favour and keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
 
 I've also created two helper scripts which make it easier to keep `d/copyright` clean. [`redundant-copyright-stanzas`](https://github.com/canonical/foundations-sandbox/blob/master/maxgmr/redundant-copyright-stanzas) produces a list of stanzas which are already covered by existing stanzas, and [`unneeded-copyright-stanzas`](https://github.com/canonical/foundations-sandbox/blob/master/maxgmr/unneeded-copyright-stanzas) produces a list of stanzas which don't apply to any files in the source tree.
 
