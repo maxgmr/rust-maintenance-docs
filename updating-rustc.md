@@ -581,13 +581,7 @@ Next, add a changelog entry, including the `~ppa` component in your version numb
 - `<N>` is just the number of the upload. You may have to re-upload to this PPA, so you can just start with `~ppa1` for your first PPA upload, then `~ppa2` for your second, etc...
 
 ```shell
-dch -bv <X.Y.Z>+dfsg0ubuntu1\~ppa<N>-0ubuntu1 --distribution "<release>" "PPA upload"
-```
-
-You also need to create a link to the orig tarball which matches the PPA-specific version number:
-
-```shell
-ln -v ..rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1{,\~ppa<N>}.orig.tar.xz
+dch -bv <X.Y.Z>+dfsg0ubuntu1-0ubuntu1\~ppa<N> --distribution "<release>" "PPA upload"
 ```
 
 #### Uploading the source package
