@@ -57,7 +57,7 @@ git clone git+ssh://<lpuser>@git.launchpad.net/~canonical-foundations/ubuntu/+so
 Create your own personal Git repo on Launchpad:
 
 ```shell
-git remote add <lpuser> git+ssh://<lpuser>@git.launchpad.net/~<lpuser>/+git/rustc
+git remote add <lpuser> git+ssh://<lpuser>@git.launchpad.net/~<lpuser>/ubuntu/+source/rustc
 ```
 
 ## The Update
