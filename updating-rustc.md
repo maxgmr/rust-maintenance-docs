@@ -564,6 +564,21 @@ When a particular bug gives me a lot of grief, I keep all my notes about it unde
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
 
+#### PPA configuration
+
+We want to make the default PPA created by `ppa create` have two non-default traits:
+
+1. Enable building on all architectures supported by `rustc`.
+2. Use the `proposed` pocket for dependencies.
+
+To make all newly-created PPAs have these traits, you can create `~/.config/ppa-dev-tools/config.yml` with the following contents:
+
+```yaml
+create:
+  architectures: amd64,i386,arm64,armhf,ppc64el,s390x,riscv64
+  pocket: proposed
+```
+
 #### Creating a new PPA
 
 First, create a new PPA if this is your first PPA upload for this Rust version:
@@ -572,7 +587,7 @@ First, create a new PPA if this is your first PPA upload for this Rust version:
 ppa create rustc-<X.Y>-merge
 ```
 
-The command should return a URL leading to the PPA. Open up that URL to visit the PPA Launchpad page, navigate to "Change details", and enable RISC-V building on this PPA. All target architectures should be enabled.
+The command should return a URL leading to the PPA. It's a good idea to double-check that the settings are correct. Make sure that all architectures are enabled and that it depends on the `proposed` pocket.
 
 #### PPA changelog entry
 
