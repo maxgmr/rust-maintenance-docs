@@ -346,7 +346,118 @@ You shouldn't see anything _too surprising_. Anything removed from the diff mean
 
 Once you've checked over your new list of excluded vendored crates, you can commit your `d/copyright` changes, restore/clean your Git repository, and continue.
 
-### 7. Updating Your Source Tree (Again)
+### 7. Removing Vendored C Libraries
+
+We don't _want_ to vendor Rust dependencies, we _have_ to. This is because unlike C, Rust doesn't have a stable ABI, meaning that dependencies (generally) must be statically linked to the binary.
+
+An [excellent article](https://blogs.gentoo.org/mgorny/2021/02/19/the-modern-packagers-security-nightmare/) by a Gentoo maintainer talks more about why vendored dependencies cause problems.
+
+Why am I talking about this? Well, we have to vendor Rust dependencies, but we _don't_ have to vendor the C libraries included within some vendored crates. This can be seen in the `Files-Excluded` field of `d/copyright`:
+
+```
+Files-Excluded:
+ ...
+# Embedded C libraries
+ vendor/blake3-*/c
+ vendor/curl-sys-*/curl
+ vendor/libdbus-sys-*/vendor
+ vendor/libgit2-sys-*/libgit2
+ ...
+```
+
+Subdirectories _within_ vendored crates are being pruned from the orig tarball. What replaces them? The _system_ C libraries, thoughtfully provided in the Ubuntu archive. Considering the exclusion of `vendor/libgit2-sys-*/libgit2` above, let's take a look at `d/control`:
+
+```
+Build-Depends:
+ ...
+ libgit2-dev (>= 1.9.0~~),
+ libgit2-dev (<< 1.10~~),
+ ...
+```
+
+These two changes form the basis of removing vendored C dependencies.
+
+#### Find vendored C dependencies
+
+The easiest way I know of finding vendored C dependencies is to just search for C source files within the `vendor/` directory:
+
+```shell
+cd vendor
+fdfind -e c
+```
+
+You can now check this list and figure out which of these are bundled C libraries.
+
+#### Removing C dependencies from next orig tarball
+
+From now on, I'll use a removal of the bundled `oniguruma` library from `rustc-1.86`, which caused some [build failures](https://pad.lv/2119556) after I failed to remove it.
+
+Next time we run `uscan`, we want to make sure that the bundled C libraries we want to remove aren't included. To do that, simply add the C library directory to `Files-Excluded` in `debian/copyright`:
+
+```diff
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -50,6 +50,7 @@ Files-Excluded:
+  vendor/libsqlite3-sys-*/sqlcipher
+  vendor/libz-sys-*/src/zlib*
+  vendor/lzma-sys*/xz-*
++ vendor/onig_sys*/oniguruma
+ # Embedded binary blobs
+  vendor/jsonpath_lib-*/docs
+  vendor/mdbook-*/src/theme/playground_editor
+```
+
+#### Adding the system library as a build dependency
+
+We can't just remove a C library needed by a vendored dependency without providing a proper copy of said library in its place! Instead, we can use the oniguruma Ubuntu package, `libonig-dev`. We do this by adding the package to `Build-Depends` in `d/control` AND `d/control.in`:
+
+```diff
+--- a/debian/control
++++ b/debian/control
+@@ -37,6 +37,7 @@ Build-Depends:
+  libgit2-dev (<< 1.10~~),
+  libhttp-parser-dev,
+  libsqlite3-dev,
++ libonig-dev,
+ # test dependencies:
+  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
+  git <!nocheck>,
+```
+
+```diff
+--- a/debian/control.in
++++ b/debian/control.in
+@@ -37,6 +37,7 @@ Build-Depends:
+  libgit2-dev (<< 1.10~~),
+  libhttp-parser-dev,
+  libsqlite3-dev,
++ libonig-dev,
+ # test dependencies:
+  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
+  git <!nocheck>,
+```
+
+#### Making the vendored crate use the system library instead
+
+In all likelihood, you'll need to adjust the vendored crate so it knows to use the system library instead of the bundled one. This can vary greatly, but it usually involves patching the crate's `Cargo.toml` or `build.rs`, so look in those places first.
+
+In the case of `onig_sys`, I simply patched it to use the system library by default:
+
+```diff
+--- a/vendor/onig_sys-69.8.1/build.rs
++++ b/vendor/onig_sys-69.8.1/build.rs
+@@ -219,7 +219,7 @@
+
+ pub fn main() {
+     let link_type = link_type_override();
+-    let require_pkg_config = env_var_bool("RUSTONIG_SYSTEM_LIBONIG").unwrap_or(false);
++    let require_pkg_config = env_var_bool("RUSTONIG_SYSTEM_LIBONIG").unwrap_or(true);
+
+     if require_pkg_config || link_type == Some(LinkType::Dynamic) {
+         let mut conf = Config::new();
+```
+
+### 8. Updating Your Source Tree (Again)
 
 #### The return of `uscan`
 
@@ -455,7 +566,7 @@ You should see ONLY a huge list of deleted `vendor/` files. If there are _any ot
 
 Once you're 100% sure everything is good, you may delete your `import-new-<X.Y>` and `backup` branches. This is also a good time to force-push to your `<lpuser>` remote.
 
-### 8. Refreshing the Patches (Again)
+### 9. Refreshing the Patches (Again)
 
 You just yanked out a ton of files, so some of the package patches will no longer apply. You must refresh all the patches so they apply cleanly onto the newly-pruned source.
 
@@ -463,7 +574,7 @@ You just yanked out a ton of files, so some of the package patches will no longe
 
 Hopefully, this shouldn't take too long. There will, of course, be a ton of lines removed from `d/p/prune/d-0021-vendor-remove-windows-dependencies.patch` because a bunch of the vendored crates you pruned were _themselves_ unnecessary.
 
-### 9. Updating `XS-Vendored-Sources-Rust`
+### 10. Updating `XS-Vendored-Sources-Rust`
 
 Inside of `d/control`, and `d/control.in`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies along with their versions on one _huge_ line.
 
@@ -482,7 +593,7 @@ Copy-paste the expected value it provides to both `debian/control` AND `debian/c
 
 If you're running a pre-versioned Rust Ubuntu release, then there's a decent chance the `cargo` installation required by `dh-cargo` will be too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's just a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the Rustup snap's version will be used instead.
 
-### 10. Updating `d/copyright`
+### 11. Updating `d/copyright`
 
 All the new `vendor/` files must be added to `d/copyright`. Luckily, we can use a script which uses Lintian to generate all the missing copyright stanzas.
 
@@ -530,7 +641,7 @@ I've also created two helper scripts which make it easier to keep `d/copyright` 
 
 - Note that both scripts are intentionally overzealous in order to catch everything- don't delete anything without manually verifying it first!
 
-### 11. Local Build
+### 12. Local Build
 
 You're now ready to try building your updated `rustc`! I use `sbuild` to do this.
 
@@ -560,7 +671,7 @@ If the build fails, it's up to you to figure out why. This will require the prob
 
 When a particular bug gives me a lot of grief, I keep all my notes about it under a personal ["Bug Diaries" GitHub repo](https://github.com/maxgmr/bug_diaries/tree/main/rustc). I find it helpful to keep all the information I've collected in one accessible place, and perhaps it may help you address any similar bugs that appear in the future.
 
-### 12. PPA Build
+### 13. PPA Build
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
 
@@ -615,7 +726,7 @@ Finally, upload the newly-created source package:
 dput ppa:<lpname>/rustc-<X.Y>-merge $(source-changes-file)
 ```
 
-### 13. Final Lintian Checks
+### 14. Final Lintian Checks
 
 Once everything builds in a PPA for all architectures, pat yourself on the back! The hardest part is over, and you're nearly done!
 
@@ -650,7 +761,7 @@ You _do_ need to address all of these. They must either be fixed or added to `de
 
 Once you've dealt with all other warnings and errors, you're ready for the next step!
 
-### 14. autopkgtests
+### 15. autopkgtests
 
 Useful resrouces:
 
@@ -771,7 +882,7 @@ Click all of the links to trigger the autopkgtests for each target architecture.
 
 You can use the same `ppa tests ...` command to check the status of the autopkgtests themselves.
 
-### 15. Uploading the Package
+### 16. Uploading the Package
 
 You're nearly ready to request sponsorship. First, it's your duty to make your sponsor's job _as easy as possible_.
 
