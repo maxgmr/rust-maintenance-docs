@@ -521,12 +521,6 @@ git checkout merge-<X.Y_old>
 git checkout -b import-new-<X.Y>
 ```
 
-Now, we can return to the point before any of your changes were made (i.e., the point before you originally merged the updated Rust source tree onto your Git repository). MAKE SURE YOU'VE MADE YOUR BACKUPS BEFORE DOING THIS NEXT STEP!!!!
-
-```shell
-git reset --hard merge-<X.Y_old>
-```
-
 Delete the old `experimental` branch:
 
 ```shell
