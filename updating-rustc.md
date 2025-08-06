@@ -543,7 +543,7 @@ Finally, we can switch back to our actual branch and rebase:
 
 ```shell
 git checkout merge-<X.Y>
-git rebase import-new<X.Y>
+git rebase import-new-<X.Y>
 ```
 
 Consulting your `git log`, you should see the two new `gbp` commits immediately after the final commit of the last Rust version.
