@@ -860,9 +860,11 @@ ppa tests \
     --release <release>
 ```
 
-Click all of the links to trigger the autopkgtests for each target architecture. The infrastructure can be a little flaky at times, so if some of them fail, don't be afraid to retry.
+Click all of the links except i386 to trigger the autopkgtests for each target architecture.
 
 You can use the same `ppa tests ...` command to check the status of the autopkgtests themselves.
+
+The infrastructure can be a little flaky at times. If you get a "BAD" reponse (instead of a "PASS" or "FAIL"), then you just need to retry it.
 
 ### 16. Uploading the Package
 
