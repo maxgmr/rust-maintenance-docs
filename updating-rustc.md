@@ -907,7 +907,7 @@ The Ubuntu project docs discuss the `debdiff` process in general [here](https://
 
 Essentially, we need to generate a diff between the uploaded version of `rustc` and your updated version of `rustc` that doesn't rely on Git. To do this, we'll need `.dsc`s for both package versions.
 
-The `.dsc` for the uploaded `rustc-X.Y` can be downloaded from its source package page on Launchpad. Your new `.dsc` can be generated the typical way:
+Build the source package for both the new and old versions:
 
 ```shell
 dpkg-buildpackage -S -I -i -nc -d -sa
