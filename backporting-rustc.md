@@ -122,7 +122,7 @@ git checkout -b jammy-1.85
 
 ### 3. Changelog Version
 
-The first thing we should do on our new branch is create a new changelog entry right off the bat.
+The first thing we should do on our new branch is create a new changelog entry right off the bat. Before we change anything, however, it's important to understand the meaning of every component of the version number.
 
 #### Version number format
 
