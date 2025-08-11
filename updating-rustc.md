@@ -900,3 +900,55 @@ Finally, we just need to ask an Archive Admin to add the new `rustc` package to 
 #### Requesting review
 
 You're now ready to get a review! Subscribe `ubuntu-sponsors` to your bug to make it visible for review and upload.
+
+## Updating an Existing Rust Package
+
+The `rustc` Git repository is not managed by `git-ubuntu`. This means that whenever you must fix a bug in an already-released Rust source package, you must follow the legacy `debdiff` workflow instead.
+
+You follow the typical sequence of steps for Rust maintenance: you must update the version number with a changelog entry linking to the Launchpad bug, make your changes, build things locally, build things in a PPA, and run autopkgtests on your updated version. Make sure to update the `rustc` Git repo accordingly!
+
+After that, however, things diverge — since the uploaded `rustc-X.Y` is not associated with the `rustc` Git repo, you're unable to generate a diff for a merge proposal.
+
+### Creating a reviewable diff
+
+This should be done only after verifying that the updated Rust builds in a PPA, passes all autopkgtests, and meets reasonable Lintian standards.
+
+The Ubuntu project docs discuss the `debdiff` process in general [here](https://canonical-ubuntu-project.readthedocs-hosted.com/contributors/bug-fix/propose-changes/#submitting-the-fix).
+
+Essentially, we need to generate a diff between the uploaded version of `rustc` and your updated version of `rustc` that doesn't rely on Git. To do this, we'll need `.dsc`s for both package versions.
+
+The `.dsc` for the uploaded `rustc-X.Y` can be downloaded from its source package page on Launchpad. Your new `.dsc` can be generated the typical way:
+
+```shell
+dpkg-buildpackage -S -I -i -nc -d -sa
+```
+
+After that, use `debdiff` to generate a diff between the two `.dsc`s. Redirect the output to an easily-accessible place:
+
+```shell
+debdiff <old_dsc> <new_dsc> > 1-<full_version_number>.debdiff
+```
+
+### debdiff patch naming convention
+
+Let's break down an example debdiff patch name: `1-1.86.0+dfsg0ubuntu2-0ubuntu2.debdiff`
+
+- `1-` means that this is the first revision of this patch.
+- `1.86.0+dfsg0ubuntu2-0ubuntu2` is the full version number of your updated version.
+  - The first `0ubuntu2` means that the orig tarball has been regenerated after the initial upload. You don't have to increment this number unless you've changed the orig tarball.
+  - The second `0ubuntu2` is _always_ incremented, because you've obviously changed the package in _some_ way if you're updating it!
+- The `.debdiff` suffix is simply a hint that this is a patch. Launchpad will complain (but still allow you to upload the patch) if this is not here.
+
+Here's another example: `2-1.81.0+dfsg0ubuntu1-0ubuntu3.debdiff`
+
+- `2-`: It's the second revision of this patch — obviously the sponsors had some feedback!
+- `0ubuntu1`: The orig tarball has been unchanged since the initial upload.
+- `0ubuntu3`: This package has already been updated once before since its initial upload.
+
+### Sharing your changes for review
+
+Instead of opening a merge proposal, you must share your patch directly underneath the bug report.
+
+On Launchpad, click "Add attachment or patch" underneath the bug report description and add your `debdiff` as an attachment, ticking the box labelled "This attachment contains a solution (patch) for this bug". As for the comment field itself, all the regular sponsorship request standards apply — include links to the passing autopkgtests, the PPA build, and the updated Git branch itself.
+
+After that, subscribe `ubuntu-sponsors` to the bug and await review and upload!
