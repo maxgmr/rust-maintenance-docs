@@ -154,11 +154,22 @@ Examples:
 
 To begin, you only have to add/change `<release_number>` in the changelog version number. Don't forget to decrement it! You can leave any `~bpo<N>`s (or lack thereof) as-is for now, as you haven't made any changes to which dependencies have been vendored yet.
 
+`<existing_version_number>` is the full version number of the latest changelog entry.
+
 ```shell
 dch -bv \
-    <old_version_number>.<release_number--> \
+    <existing_version_number>.<release_number--> \
     --distribution "<release>"
 ```
+
+Examples:
+
+| Existing Release | Backport      | `existing_version_number`               | New version number                      |
+| ---------------- | ------------- | --------------------------------------- | --------------------------------------- |
+| 1.82 Devel       | 1.82 Oracular | 1.82.0+dfsg0ubuntu1-0ubuntu2            | 1.82.0+dfsg0ubuntu1-0ubuntu0.24.09      |
+| 1.81 Jammy       | 1.81 Focal    | 1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.22.03 | 1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.20.03 |
+
+As you can see, we leave everything untouched except for the addition of the decremented release number at the very end.
 
 Make the changelog entry description something like this:
 
