@@ -800,7 +800,7 @@ autopkgtest rustc-<X.Y> \
     <path/to/test/bed/autopkgtest-<series>-<arch>-default.img
 ```
 
-If all the autopkgtests pass, great! You're ready to [run the autopkgtests for real](<updating-rustc#Running the PPA autopkgtests>). However, in all likelihood, an autopkgtest fails, so you need to read on...
+If all the autopkgtests pass, great! You're ready to [run the autopkgtests for real](#running-the-ppa-autopkgtests). However, in all likelihood, an autopkgtest fails, so you need to read on...
 
 #### Locally running autopkgtests with more resources
 
@@ -949,6 +949,6 @@ Here's another example: `2-1.81.0+dfsg0ubuntu1-0ubuntu3.debdiff`
 
 Instead of opening a merge proposal, you must share your patch directly underneath the bug report.
 
-On Launchpad, click "Add attachment or patch" underneath the bug report description and add your `debdiff` as an attachment, ticking the box labelled "This attachment contains a solution (patch) for this bug". As for the comment field itself, all the regular sponsorship request standards apply — include links to the passing autopkgtests, the PPA build, and the updated Git branch itself.
+On Launchpad, click "Add attachment or patch" underneath the bug report description and add your `debdiff` as an attachment, ticking the box labelled "This attachment contains a solution (patch) for this bug". As for the comment field itself, all the [regular sponsorship request standards](#sharing-the-right-info) apply — include links to the passing autopkgtests, the PPA build, the Lintian results, and the updated Git branch itself.
 
 After that, subscribe `ubuntu-sponsors` to the bug and await review and upload!
