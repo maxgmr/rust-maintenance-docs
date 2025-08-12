@@ -562,6 +562,10 @@ You should see ONLY a huge list of deleted `vendor/` files. If there are _any ot
 
 Once you're 100% sure everything is good, you may delete your `import-new-<X.Y>` and `backup` branches. This is also a good time to force-push to your `<lpuser>` remote.
 
+#### Updating your changelog
+
+You can now update your `d/changelog` version to `<X.Y.Z>+dfsg0ubuntu1-0ubuntu1`. Use `dch -r` to automatically update the timestamp.
+
 ### 9. Refreshing the Patches (Again)
 
 You just yanked out a ton of files, so some of the package patches will no longer apply. You must refresh all the patches so they apply cleanly onto the newly-pruned source.
