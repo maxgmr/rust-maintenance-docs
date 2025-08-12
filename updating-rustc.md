@@ -205,6 +205,8 @@ quilt push debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch
 win-rustc-prune-list > path/to/prune-list
 ```
 
+Note that the majority of this list will be taken up by lines from the `Cargo.toml`s of various versions of the Windows crates like `windows`, `windows-sys`, etc. You don't need to prune these! Basically, if you _know_ that a given crate will be removed, you _don't_ need to prune its `Cargo.toml`.
+
 #### Prune vendored Windows dependencies
 
 Your top priority will be removing any dependencies which pull in `windows-sys`, `winapi`, `ntapi`, `windows`, `schannel`, etc. Go through the prune list you just generated and inspect the flagged lines to make sure it's something you want to prune.
