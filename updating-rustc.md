@@ -326,7 +326,7 @@ If you have issues running `d/prune-unused-deps` due to features requiring "nigh
 
 After running `d/prune-unused-deps`, you'll see a _lot_ of changes, almost none of which you actually need.
 
-First, if you needed to edit `d/prune-unused-deps` itself earlier, make sure you restore that:
+First, if you needed to edit `d/prune-unused-deps` itself earlier, make sure you restore it:
 
 ```shell
 git restore debian/prune-unused-deps
