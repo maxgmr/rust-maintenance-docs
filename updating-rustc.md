@@ -669,6 +669,8 @@ sbuild -Ad <release> -c <schroot> .
 
 If the build fails, it's up to you to figure out why. This will require the problem-solving skills and attention to detail I know you have!
 
+I've saved a great deal of time in the past by first trying to find any upstream issues related to my problem on the Rust GitHub page. It's quite common for non-packaging-related problems to be already known upstream, and you can often grab a patch from there.
+
 When a particular bug gives me a lot of grief, I keep all my notes about it under a personal ["Bug Diaries" GitHub repo](https://github.com/maxgmr/bug_diaries/tree/main/rustc). I find it helpful to keep all the information I've collected in one accessible place, and perhaps it may help you address any similar bugs that appear in the future.
 
 ### 13. PPA Build
