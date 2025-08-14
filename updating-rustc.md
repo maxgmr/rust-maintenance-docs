@@ -673,6 +673,22 @@ I've saved a great deal of time in the past by first trying to find any upstream
 
 When a particular bug gives me a lot of grief, I keep all my notes about it under a personal ["Bug Diaries" GitHub repo](https://github.com/maxgmr/bug_diaries/tree/main/rustc). I find it helpful to keep all the information I've collected in one accessible place, and perhaps it may help you address any similar bugs that appear in the future.
 
+#### Running individual tests
+
+If you're getting test failures and you want to try stuff out without rebuilding the whole thing, when `sbuild` boots you out into a shell you can re-run individual tests.
+
+For example, here's how to run all the bootstrap tests:
+
+```shell
+debian/rules override_dh_auto_test RUSTBUILD_TEST_FLAGS="src/bootstrap/"
+```
+
+Here's how to run _just_ the `alias_and_path_for_library` bootstrap test:
+
+```shell
+debian/rules override_dh_auto_test RUSTBUILD_TEST_FLAGS="src/bootstrap/ --test-args alias_and_path_for_library"
+```
+
 ### 13. PPA Build
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
