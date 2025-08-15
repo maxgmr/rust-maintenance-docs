@@ -688,13 +688,13 @@ If you're getting test failures and you want to try stuff out without rebuilding
 For example, here's how to run all the bootstrap tests:
 
 ```shell
-debian/rules override_dh_auto_test RUSTBUILD_TEST_FLAGS="src/bootstrap/"
+debian/rules override_dh_auto_test-arch RUSTBUILD_TEST_FLAGS="src/bootstrap/"
 ```
 
 Here's how to run _just_ the `alias_and_path_for_library` bootstrap test:
 
 ```shell
-debian/rules override_dh_auto_test RUSTBUILD_TEST_FLAGS="src/bootstrap/ --test-args alias_and_path_for_library"
+debian/rules override_dh_auto_test-arch RUSTBUILD_TEST_FLAGS="src/bootstrap/ --test-args alias_and_path_for_library"
 ```
 
 ### 13. PPA Build
