@@ -673,6 +673,14 @@ I've saved a great deal of time in the past by first trying to find any upstream
 
 When a particular bug gives me a lot of grief, I keep all my notes about it under a personal ["Bug Diaries" GitHub repo](https://github.com/maxgmr/bug_diaries/tree/main/rustc). I find it helpful to keep all the information I've collected in one accessible place, and perhaps it may help you address any similar bugs that appear in the future.
 
+#### Searching for failing tests in the build log
+
+If you're using `sbuild`, remember that the build logs are saved to your machine. You can easily jump to the logs of each failing test by searching for the following within the log:
+
+```
+stdout ----
+```
+
 #### Running individual tests
 
 If you're getting test failures and you want to try stuff out without rebuilding the whole thing, when `sbuild` boots you out into a shell you can re-run individual tests.
