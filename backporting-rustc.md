@@ -192,7 +192,7 @@ At some point, we need to update `debian/watch` to match the `~bpo<N>` naming co
 ```shell
 mv \
     ../rustc-<X.Y>_<X.Y.Z>+dfsg1.orig.tar.xz \
-    ../rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>
+    ../rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
 ```
 
 - The `bpo~<N>` suffix helps keep track of your collection of orig tarballs! Looking at your big list of tarballs, you can tell at a glance _which_ versions have _which_ combinations of LLVM and/or `libgit2` included within them.
