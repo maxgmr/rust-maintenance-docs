@@ -697,6 +697,25 @@ Here's how to run _just_ the `alias_and_path_for_library` bootstrap test:
 debian/rules override_dh_auto_test-arch RUSTBUILD_TEST_FLAGS="src/bootstrap/ --test-args alias_and_path_for_library"
 ```
 
+#### Proper patch header format
+
+In order to fix certain bugs, it's likely you'll need to create your own patch at some point. It's important that this patch contains enough information for other people to understand _what_ it's doing and _why_ it's doing it.
+
+First, ensure that [Debian](https://salsa.debian.org/rust-team/rust/-/tree/debian/experimental?ref_type=heads) has not already created an equivalent patch. If so, you can simply use their patch directly.
+
+- If you need to modify the patch in any way, make sure to add `Origin: backport, <Debian VCS patch URL>` to the patch header.
+
+Otherwise, you'll need to create your own patch. A template DEP-3 header can be generated using the following command:
+
+```shell
+quilt header -e --dep3 <path/to/patch>
+```
+
+For the most part, you can follow the [Debian DEP-3 patch guidelines](https://dep-team.pages.debian.net/deps/dep3/). However, there are a few extra things you must do:
+
+- For some reason, Debian devs typically don't like the `This patch header follows DEP-3 [...]` line added by `quilt`. Delete this line.
+- If this patch isn't something to get the new Rust version to build, and you're instead updating an existing source package, add a `Bug-Ubuntu:` line linking to the Launchpad bug.
+
 ### 13. PPA Build
 
 Once everything builds on your local machine, it's time to test it on all architectures by uploading it to a PPA.
