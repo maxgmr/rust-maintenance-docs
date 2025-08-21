@@ -972,12 +972,12 @@ debdiff <old_dsc> <new_dsc> > 1-<full_version_number>.debdiff
 
 ### debdiff patch naming convention
 
-Let's break down an example debdiff patch name: `1-1.86.0+dfsg0ubuntu2-0ubuntu2.debdiff`
+Let's break down an example debdiff patch name: `1-1.86.0+dfsg0ubuntu2-0ubuntu1.debdiff`
 
 - `1-` means that this is the first revision of this patch.
-- `1.86.0+dfsg0ubuntu2-0ubuntu2` is the full version number of your updated version.
-  - The first `0ubuntu2` means that the orig tarball has been regenerated after the initial upload. You don't have to increment this number unless you've changed the orig tarball.
-  - The second `0ubuntu2` is _always_ incremented, because you've obviously changed the package in _some_ way if you're updating it!
+- `1.86.0+dfsg0ubuntu2-0ubuntu1` is the full version number of your updated version.
+  - `0ubuntu2` means that the orig tarball has been regenerated after the initial upload. You don't have to increment this number unless you've changed the orig tarball.
+  - `0ubuntu1` has been reset, no matter what the previous version number is. This is because the orig tarball was regenerated. You only have to increment this portion of the version number when the orig tarball was the same.
 - The `.debdiff` suffix is simply a hint that this is a patch. Launchpad will complain (but still allow you to upload the patch) if this is not here.
 
 Here's another example: `2-1.81.0+dfsg0ubuntu1-0ubuntu3.debdiff`
