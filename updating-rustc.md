@@ -884,6 +884,8 @@ We need to make sure that when the autopkgtests are run for real, they're run on
 
 To do this, create a merge proposal in the [`autopkgtest-package-configs` repo](https://code.launchpad.net/~ubuntu-release/autopkgtest-cloud/+git/autopkgtest-package-configs) adding the new Rust version to the list of `big_packages`, which are granted the 100GB disk space, 8192MiB of memory, and 4 vCPUs we used earlier.
 
+Make sure you double-check the target repository into which you're merging — you want to merge into `autopkgtest-package-configs`, NOT `autopkgtest-cloud`.
+
 The change itself is trivial:
 
 ```diff
