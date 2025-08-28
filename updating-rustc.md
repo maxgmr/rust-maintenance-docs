@@ -796,7 +796,7 @@ Once you've dealt with all other warnings and errors, you're ready for the next 
 
 ### 15. autopkgtests
 
-Useful resrouces:
+Useful resources:
 
 - [Ubuntu Maintainers' Handbook - Running Package Tests](https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageTests.md)
 - [Ubuntu Wiki - autopkgtests](https://wiki.ubuntu.com/ProposedMigration#autopkgtests)
