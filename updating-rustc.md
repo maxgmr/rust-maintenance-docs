@@ -899,7 +899,7 @@ The change itself is trivial:
  rust-cargo-c/ppc64el
 ```
 
-For an example on how to format this merge proposal, you can see one of my real-life proposals [here](https://code.launchpad.net/~maxgmr/autopkgtest-cloud/+git/autopkgtest-package-configs/+merge/487781).
+For an example on how to format this merge proposal, you can see one of my real-life proposals [here](https://code.launchpad.net/~maxgmr/autopkgtest-cloud/+git/autopkgtest-package-configs/+merge/489449)
 
 #### Running the PPA autopkgtests
 
