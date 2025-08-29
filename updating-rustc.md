@@ -209,7 +209,7 @@ Example for pruning vendored dependencies:
 
 ```shell
 quilt push debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch
-win-rustc-prune-list > path/to/prune-list
+win-rustc-vendored-prune-list > path/to/prune-list
 ```
 
 Note that the majority of this list will be taken up by lines from the `Cargo.toml`s of various versions of the Windows crates like `windows`, `windows-sys`, etc. You don't need to prune these! Basically, if you _know_ that a given crate will be removed, you _don't_ need to prune its `Cargo.toml`.
