@@ -43,22 +43,11 @@ Examples:
 `dfsg` is short for "Debian free software guidelines."
 The presence of `+dfsg{whatever}` indicates that the orig tarball has been *repacked* in some way.
 
-Usually, this is done for copyright reasons.[^dfsg_copyright]
+Usually, this is done for copyright reasons.<sup id="anchor1">[Note 1](#footnote1)</sup>
 However, in our case, we are doing it just to make our tarballs smaller.
 Rustc comes with lots of functionality that we don't need on our archives, most notably Windows support.
 To save space, we (ab)use Debian's ability to *exclude* all those unnecessary files.
 That way, we aren't hauling around megabytes of code the compiler is going to ignore anyways.
-
-[^dfsg_copyright]: Say that a package, `libfoo`, has a few files in it that are covered by non-free licenses.
-  Therefore we need to exclude those files before we send it to the archive, because otherwise we would be redistributing code illegally.
-  
-  However, in order to do this with a *patch*, we would need to put all the copyrighted code into the patch!
-  We would still be illegally redistributing code.
-  
-  To get around this, we use the `Files-Excluded:` field to omit files by *name*.
-  
-  In our case (as said above), we're doing this for convenience, not for legal reasons.
-  It's perfectly legal to distribute all the Windows interop code, it's just a waste of space.
 
 So, this part of the version string indicates that Debian (`dfsg`) has repacked the tarball `0` times,
 and that we (`ubuntu`) have repacked it `{repack}` times.
@@ -107,13 +96,9 @@ Every time you need to edit a particular version of Rustc on a particular versio
 For example, I (ppark) have used this when I accidentally published a version
 `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu0.24.03` that I thought was ready to merge, but had some lingering lintian errors.
 Thus, I fixed the lintian errors (in a few rounds) and eventually published version
-`1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.[^whoopsy]
+`1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.<sup id="anchor2">[Note 2](#footnote2)</sup>
 [You can see that whole saga here.](https://launchpad.net/~petrakat/+archive/ubuntu/rustc-1.83-merge/+packages?field.name_filter=&field.status_filter=&field.series_filter=)
 
-[^whoopsy]: Actually, I made several mistakes in this particular version string;
-  I indexed `{revision}` by 0 and not 1, and also messed up the `~bpo{vendored_deps}` part.
-  Sorry!
-  It was my first backport ...
 
 Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: First Revision
@@ -154,3 +139,22 @@ Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: First push to your PPA
 - `1.87.0+dfsg0ubuntu1-0ubuntu1`: No PPA (i.e., real complete release)
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: 3rd push to your PPA
+
+---
+
+<b id="footnote1">Note 1:</b>
+Say that a package, `libfoo`, has a few files in it that are covered by non-free licenses.
+Therefore we need to exclude those files before we send it to the archive, because otherwise we would be redistributing code illegally.
+
+However, in order to do this with a *patch*, we would need to put all the copyrighted code into the patch!
+We would still be illegally redistributing code.
+
+To get around this, we use the `Files-Excluded:` field to omit files by *name*.
+In our case (as said above), we're doing this for convenience, not for legal reasons.
+It's perfectly legal to distribute all the Windows interop code, it's just a waste of space. [↩](#anchor1)
+
+<b id="footnote2">Note 2:</b>
+Actually, I made several mistakes in this particular version string;
+I indexed `{revision}` by 0 and not 1, and also messed up the `~bpo{vendored_deps}` part.
+Sorry!
+It was my first backport ... [↩](#anchor2)
