@@ -12,10 +12,11 @@ Here, `{curly_braces}` indicate placeholders to be edited, and `[square braces]`
 {rustc_version}+dfsg0ubuntu{repack}[~bpo{vendored_deps}]-0ubuntu{revision}.{ubuntu-release}[~ppa{PPA}]
 ```
 
-*Note that there are a few different version string schemas floating around the archives.
-This document is about how future version strings SHOULD be made, not how they used to be made.
-This is also why I can't give links to some of these versions; they're not real!
-They're made up for example purposes.*
+> [!NOTE]
+> There are a few different version string schemas floating around the archives.
+> This document is about how future version strings SHOULD be made, not how they used to be made.
+> This is also why I can't give links to some of these versions; they're not real!
+> They're made up for example purposes.
 
 <!-- TODO: I believe my (ppark's) rustc 1.83->noble port is the first backport that properly uses
 this spec. However I messed up part of the version string and misreport the vendored deps.
@@ -50,12 +51,12 @@ That way, we aren't hauling around megabytes of code the compiler is going to ig
 
 [^dfsg_copyright]: Say that a package, `libfoo`, has a few files in it that are covered by non-free licenses.
   Therefore we need to exclude those files before we send it to the archive, because otherwise we would be redistributing code illegally.
-
+  
   However, in order to do this with a *patch*, we would need to put all the copyrighted code into the patch!
   We would still be illegally redistributing code.
-
+  
   To get around this, we use the `Files-Excluded:` field to omit files by *name*.
-
+  
   In our case (as said above), we're doing this for convenience, not for legal reasons.
   It's perfectly legal to distribute all the Windows interop code, it's just a waste of space.
 
