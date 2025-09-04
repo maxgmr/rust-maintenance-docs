@@ -33,7 +33,7 @@ Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: rustc 1.88.0
 - `1.87.0+dfsg0ubuntu1-0ubuntu1`: rustc 1.87.0
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: rustc 1.85.1
-- `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: rustc 1.80
+- `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: rustc 1.80.0
 
 ## `+dfsg0ubuntu{repack}`
 
@@ -48,8 +48,7 @@ Rustc comes with lots of functionality that we don't need on our archives, most 
 To save space, we (ab)use Debian's ability to *exclude* all those unnecessary files.
 That way, we aren't hauling around megabytes of code the compiler is going to ignore anyways.
 
-[^dfsg_copyright]:
-  Say that a package, `libfoo`, has a few files in it that are covered by non-free licenses.
+[^dfsg_copyright]: Say that a package, `libfoo`, has a few files in it that are covered by non-free licenses.
   Therefore we need to exclude those files before we send it to the archive, because otherwise we would be redistributing code illegally.
 
   However, in order to do this with a *patch*, we would need to put all the copyrighted code into the patch!
@@ -110,8 +109,7 @@ Thus, I fixed the lintian errors (in a few rounds) and eventually published vers
 `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.[^whoopsy]
 [You can see that whole saga here.](https://launchpad.net/~petrakat/+archive/ubuntu/rustc-1.83-merge/+packages?field.name_filter=&field.status_filter=&field.series_filter=)
 
-[^whoopsy]:
-  Actually, I made several mistakes in this particular version string;
+[^whoopsy]: Actually, I made several mistakes in this particular version string;
   I indexed `{revision}` by 0 and not 1, and also messed up the `~bpo{vendored_deps}` part.
   Sorry!
   It was my first backport ...
