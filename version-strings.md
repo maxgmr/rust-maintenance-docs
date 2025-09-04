@@ -23,7 +23,7 @@ this spec. However I messed up part of the version string and misreport the vend
 
 I will update this page once a backport *without* versioning mistakes is made -->
 
-### `{rustc_version}`
+## `{rustc_version}`
 
 > *The rustc version.*
 
@@ -35,7 +35,7 @@ Examples:
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: rustc 1.85.1
 - `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: rustc 1.80
 
-### `+dfsg0ubuntu{repack}`
+## `+dfsg0ubuntu{repack}`
 
 > *The number of times you have edited Files-Excluded.*
 
@@ -74,7 +74,7 @@ Examples:
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: 2nd repack
 - `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: 1st repack
 
-### `[~bpo{vendored_deps}]`
+## `[~bpo{vendored_deps}]`
 
 > *Code number for what dependencies are vendored.*
 
@@ -96,7 +96,7 @@ Examples:
 - `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: Only LLVM is vendored
 - `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu0.24.09~ppa1`: Both `libgit2` and LLVM are vendored
 
-### `0ubuntu{revision}`
+## `0ubuntu{revision}`
 
 > *The "real" version.*
 
@@ -121,7 +121,7 @@ Examples:
 - `1.87.0+dfsg0ubuntu1-0ubuntu1`: First Revision
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: Second Revision (#2)
 
-### `{ubuntu-release}`
+## `{ubuntu-release}`
 
 > *The Ubuntu release in case of backport, plus some hacks.*
 
@@ -138,7 +138,7 @@ Examples:
 - `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03~ppa3`: WIP, for Ubuntu 24.04 (that's Noble Numbat)
 - `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.04`: Complete, for Ubuntu 24.04 (again, Noble Numbat)
 
-### `~ppa{PPA}`
+## `~ppa{PPA}`
 
 > *The number of times you have pushed it to your PPA for testing.*
 
