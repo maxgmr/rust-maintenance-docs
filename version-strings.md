@@ -9,7 +9,7 @@ Although you will usually change only a few parts of it, it's a good idea to kno
 Here, `{curly_braces}` indicate placeholders to be edited, and `[square braces]` indicate optional parts.
 
 ```
-{rustc_version}+dfsg0ubuntu{repack}[~bpo{vendored_deps}]-0ubuntu{revision}.{ubuntu-release}[~ppa{PPA}]
+{rustc_version}+dfsg0ubuntu{repack}[~bpo{vendored_deps}]-0ubuntu{revision}.[{ubuntu-release}][~ppa{PPA}]
 ```
 
 > [!NOTE]
