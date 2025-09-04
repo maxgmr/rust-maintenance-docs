@@ -102,6 +102,8 @@ Thus, I fixed the lintian errors (in a few rounds) and eventually published vers
 `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.<sup id="anchor2">[2](#footnote2)</sup>
 [You can see that whole saga here.](https://launchpad.net/~petrakat/+archive/ubuntu/rustc-1.83-merge/+packages?field.name_filter=&field.status_filter=&field.series_filter=)
 
+This number gets reset back to 1 whenever `{repack}` is incremented. For example, repacking `1.82.0+dfsg0ubuntu1-0ubuntu3` means the new version number would be `1.82.0+dfsg0ubuntu2-0ubuntu1`.
+
 
 Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: First Revision
