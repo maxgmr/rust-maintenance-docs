@@ -152,11 +152,11 @@ Examples:
 
 Let's do a complete breakdown on some example version strings.
 
-| String | Rustc version | Repack | Vendored deps | Revision | Ubuntu Release | PPA |
+| String | `{rustc_version}` | `{repack}` | `~bpo{vendored_deps}` | `{revision}` | `{ubuntu-release}` | `~ppa{PPA}` |
 | ------ | ------------- | ------ | ------------- | -------- | -------------- | --- |
-| 1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4 | 1.80.0 | #1 | 2, so only LLVM | 0 | In-dev backport for 24.10 (OO) | 4 |
-| 1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1 | 1.88.0 | #1 | No vendored deps | 1 | Omitted b/c this is a normal port | 1 |
-| 1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03~ppa3 | 1.83.0 | #2 | 0, so both libgit2 and LLVM | 1 | In-dev backport for 24.03 (NN) | 3 |
+| `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4` | 1.80.0 | #1 | 2, so only LLVM | 0 | In-dev backport for 24.10 (OO) | 4 |
+| `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1` | 1.88.0 | #1 | No vendored deps | 1 | Omitted b/c this is a normal port | 1 |
+| `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03~ppa3` | 1.83.0 | #2 | 0, so both libgit2 and LLVM | 1 | In-dev backport for 24.03 (NN) | 3 |
 
 ---
 
