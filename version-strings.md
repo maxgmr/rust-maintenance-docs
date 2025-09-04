@@ -15,7 +15,7 @@ Here, `{curly_braces}` indicate placeholders to be edited, and `[square braces]`
 > [!NOTE]
 > There are a few different version string schemas floating around the archives.
 > This document is about how future version strings SHOULD be made, not how they used to be made.
-> This is also why I can't give links to some of these versions; they're not real!
+> This is also why I can't give links these versions; some of them are not real!
 > They're made up for example purposes.
 
 <!-- TODO: I believe my (ppark's) rustc 1.83->noble port is the first backport that properly uses
@@ -41,9 +41,9 @@ Examples:
 > *The number of times you have edited Files-Excluded.*
 
 `dfsg` is short for "Debian free software guidelines."
-The presence of `+dfsg{whatever}` indicates that the orig tarball has been *repacked* in some way.
+The presence of `+dfsg{whatever}` in any package indicates that the orig tarball has been *repacked* in some way.
 
-Usually, this is done for copyright reasons.<sup id="anchor1">[Note 1](#footnote1)</sup>
+Usually, this is done for copyright reasons.<sup id="anchor1">[1](#footnote1)</sup>
 However, in our case, we are doing it just to make our tarballs smaller.
 Rustc comes with lots of functionality that we don't need on our archives, most notably Windows support.
 To save space, we (ab)use Debian's ability to *exclude* all those unnecessary files.
@@ -55,7 +55,8 @@ and that we (`ubuntu`) have repacked it `{repack}` times.
 The files to be excluded are in `debian/copyright`, in the `Files-Excluded:` field.
 If you have edited that field since the last release (and thus changed the contents of the orig tarball), increment `{repack}` by one.
 **It starts at 1.**
-Generally, you will only have to change the excluded files in backports, not frontports -- this is because the most common reason to repack is if you change what is vendored, and we don't need to vendor deps for frontports.
+Generally, you will only have to change the excluded files in backports -- this is because the most common reason to repack is if you change if `libgit2` or LLVM are vendored.
+Although we do vendor *crate* dependencies for normal ports, this number only cares about when we *change* those vendors, and 99% of the time the upstream vendored crates are just fine.
 
 Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: 1st repack
@@ -91,12 +92,14 @@ Examples:
 
 This is the component that actually indicates the number of times you have edited this particular port.
 Every time you need to edit a particular version of Rustc on a particular version of Ubuntu, you increment this number.
-**It starts at 1.**
+**It starts at 0,** but any versions you push to an archive should start at 1.
+0 indicates the theoretical "pristine" version before you make any changes.
+(TODO this is *probably* correct but there is some lore here we need to get from Zixing before finalizing this section)
 
 For example, I (ppark) have used this when I accidentally published a version
 `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu0.24.03` that I thought was ready to merge, but had some lingering lintian errors.
 Thus, I fixed the lintian errors (in a few rounds) and eventually published version
-`1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.<sup id="anchor2">[Note 2](#footnote2)</sup>
+`1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03`.<sup id="anchor2">[2](#footnote2)</sup>
 [You can see that whole saga here.](https://launchpad.net/~petrakat/+archive/ubuntu/rustc-1.83-merge/+packages?field.name_filter=&field.status_filter=&field.series_filter=)
 
 
@@ -135,10 +138,25 @@ Every time you change the rest of the version string in some way, you can reset 
 
 If this part is *not* present, that means it's on the main archive, so it's a version that's actually out!
 
+> [!NOTE]
+> Versions with `~ppa{PPA}` parts should never make it onto a VCS system; they are only for the benefit of the PPA.
+> The workflow is usually to add a new changelog entry with a `~ppa` version that just says `Upload to PPA`,
+> use `dput` to upload it, then revert to the old changelog.
+
 Examples:
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: First push to your PPA
 - `1.87.0+dfsg0ubuntu1-0ubuntu1`: No PPA (i.e., real complete release)
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: 3rd push to your PPA
+
+## Putting it All Together
+
+Let's do a complete breakdown on some example version strings.
+
+| String | Rustc version | Repack | Vendored deps | Revision | Ubuntu Release | PPA |
+| ------ | ------------- | ------ | ------------- | -------- | -------------- | --- |
+| 1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4 | 1.80.0 | #1 | 2, so only LLVM | 0 | In-dev backport for 24.10 (OO) | 4 |
+| 1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1 | 1.88.0 | #1 | No vendored deps | 1 | Omitted b/c this is a normal port | 1 |
+| 1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.03~ppa3 | 1.83.0 | #2 | 0, so both libgit2 and LLVM | 1 | In-dev backport for 24.03 (NN) | 3 |
 
 ---
 
@@ -154,7 +172,6 @@ In our case (as said above), we're doing this for convenience, not for legal rea
 It's perfectly legal to distribute all the Windows interop code, it's just a waste of space. [↩](#anchor1)
 
 <b id="footnote2">Note 2:</b>
-Actually, I made several mistakes in this particular version string;
-I indexed `{revision}` by 0 and not 1, and also messed up the `~bpo{vendored_deps}` part.
-Sorry!
+If you go looking for this version on the archive, you should know that I messed up the `~bpo{vendored_deps}` part.
+I have `~bpo0`, but it should be `~bpo2` because I only vendored LLVM.
 It was my first backport ... [↩](#anchor2)
