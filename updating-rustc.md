@@ -290,6 +290,13 @@ You'll notice that these two crates aren't included in the exclusion list- they 
 
 That said, previous `rustc` packages _have_ been released without either, and I've been able to get builds without `windows-metadata`, so it may be possible to exclude them fully in the future. More research is needed on this topic!
 
+#### Final manual crate checks
+
+While the above content focuses on removing Windows dependencies, there are a few specific libraries we target for pruning. Review the following patches, and make sure that nothing else is trying to use the libraries they target:
+
+- `prune/d-0005-no-jemalloc.patch`: `tikv-jemalloc-sys` and `jemalloc-ctl`
+- `prune/d-0011-cargo-remove-nghttp2.patch`: `libnghttp2-sys`
+
 ### 6. Pruning Unused Dependencies
 
 Once you've removed all `Cargo.toml` lines which pull in unnecessary vendored dependencies, you're ready to actually update your Debian files to exclude said unnecessary dependencies from the `vendor/` directory entirely!
