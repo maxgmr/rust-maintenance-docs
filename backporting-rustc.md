@@ -304,9 +304,18 @@ You'll also need to _add_ certain `Build-Depends` required to build LLVM:
   git <!nocheck>,
 ```
 
-Finally, you can remove the binary package dependency as well:
+Finally, you can remove the binary package dependencies as well:
 
 ```diff
+@@ -157,7 +156,7 @@ Description: Rust debugger (gdb)
+ Package: rust-1.83-lldb
+ Architecture: all
+ # When updating, also update rust-lldb.links
+-Depends: lldb-19, ${misc:Depends}, python3-lldb-19
++Depends: ${misc:Depends}
+ Replaces: rustc (<< 1.1.0+dfsg1-1)
+ Description: Rust debugger (lldb)
+  Rust is a curly-brace, block-structured expression language.  It
 @@ -271,7 +271,6 @@ Description: Rust formatting helper
  Package: rust-<X.Y>-all
  Architecture: all
